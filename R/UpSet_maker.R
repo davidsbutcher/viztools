@@ -1,12 +1,31 @@
-#' UpSet_maker
+#' Make an UpSet plot from a list of unique identifiers
 #'
-#' @param UpSetlist
-#' @param UpSetType
+#' @description
+#' UpSet_maker() creates an UpSet plot from a list of unique identifiers such as
+#' UniProt accession numbers or proteoform record numbers.
+#'
+#' @param UpSetlist A list of lists of identifiers properly formatted for use by the
+#' UpSetR::upset() function. This can be provided by dissect_TDsummary().
+#' @param UpSetType Type of UpSet plot to make. This only affects the axis
+#' titles. Possible values are "protein" or "proteoform".
 #'
 #' @return
-#' @export
+#' An UpSet plot created by UpSetR::upset(). If savePDF is TRUE, a PDF is saved
+#' to the output directory.
 #'
 #' @examples
+#' UpSet_maker(
+#'    list(
+#'       list(
+#'          "Fraction1" = c("A", "B", "C", "D", "E"),
+#'          "Fraction2" = c("C", "D", "E", "F", "G")
+#'       )
+#'    )
+#' )
+#'
+#' @importFrom magrittr %>%
+#'
+#' @export
 
 UpSet_maker <-
    function(

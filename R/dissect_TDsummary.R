@@ -1,20 +1,38 @@
 
-#' dissect_TDsummary
+#' Dissect a TDSummary file
 #'
-#' @param TDsummarypath
-#' Full path to TDsummary file
-#' @param shortName
-#' Analysis shortnames to make UpSets from
-#' @param UpSetType
-#' Type of UpSet plot to make - "protein", "proteoform", "protein_unfrac"
+#' @description
+#' Extracts data from sheets in a top-down summary file and formats it for use
+#' in making an UpSet plot with UpSet_maker(). Searches for a sheet in the
+#' TDsummary named according to the arguments shortName and proteinSheetName,
+#' pformSheetName, or unfracSheetName, e.g. "peppi04d_fractions_protein".
+#'
+#' @param TDsummarypath Full path to TDsummary file. Should be .xlsx format.
+#' @param shortName Analysis shortnames to use to make UpSets.
+#' @param UpSetType Type of UpSet plot to make - "protein", "proteoform", or
+#' "protein_unfrac"
 #'
 #' @return
+#' A list of UniProt accessions or proteoform record numbers properly formatted
+#' for use with the UpSet_maker() function.
 #'
 #' @examples
+#' \dontrun{
+#' dissect_TDsummary(
+#'    "C:/Users/Bakunin/Documents/TDdatasummary.xlsx",
+#'    c("peppi04d"),
+#'    UpSetType = "protein"
+#' )
+#' }
+#'
+#' @importFrom magrittr %>%
+#'
+#' @export
+
 
 dissect_TDsummary <-
    function(
-      TDsummarypath = NULL,
+      TDsummarypath,
       shortName = NULL,
       UpSetType = "protein",
       proteinSheetName = "fractions_protein",
