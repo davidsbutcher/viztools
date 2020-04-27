@@ -3,9 +3,11 @@
 #'
 #' @description
 #' Extracts data from sheets in a top-down summary file and formats it for use
-#' in making an UpSet plot with UpSet_maker(). Searches for a sheet in the
-#' TDsummary named according to the arguments shortName and proteinSheetName,
-#' pformSheetName, or unfracSheetName, e.g. "peppi04d_fractions_protein".
+#' in making an UpSet plot with UpSet_maker() or intersection degree plot with
+#' make_intersect_plot() . Searches for a sheet in the TDsummary named according
+#' to the arguments shortName and proteinSheetName, pformSheetName, or
+#' unfracSheetName in the form "{shortName}_{sheetName}", e.g.
+#' "peppi04d_fractions_protein".
 #'
 #' @param TDsummarypath Full path to TDsummary file. Should be .xlsx format.
 #' @param shortName Analysis shortnames to use to make UpSets.

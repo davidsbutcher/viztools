@@ -20,6 +20,13 @@
 #' @param heatmapType Type of heatmap to create, typically "Protein" or
 #' "Proteoform".This only affects the legend title and output file name and
 #' can be any string.
+#' @param Xrange Numeric vector of length 2 specifying range of heatmap in kDa.
+#' Defaults to NULL, and range is determined by rounding highest mass bin up to
+#' the nearest interval of 5.
+#' @param countRange Numeric vector of length 2 specifying range of counts to
+#' use for generating heatmap fill color range. Defaults to NULL, which
+#' determines color range automatically using
+#' ggplot2::scale_fill_viridis_c(option = "C", direction = -1)
 #'
 #' @return
 #'
@@ -52,7 +59,9 @@ make_heatmap <-
       outputDir = getwd(),
       pdfPrefix = format(Sys.time(), "%Y%m%d_%H%M%S"),
       massColname = "ObservedPrecursorMass",
-      fractionColname = "fraction"
+      fractionColname = "fraction",
+      Xrange = NULL,
+      countRange = NULL
    ) {
 
       # Assertions --------------------------------------------------------------
@@ -68,8 +77,8 @@ make_heatmap <-
       )
 
       assertthat::assert_that(
-         assertthat::is.dir(outputDir),
-         msg = "outputDir is not a recognized path"
+         assertthat::is.dir(dirname(outputDir)),
+         msg = "outputDir parent directory is not a recognized path"
       )
 
       assertthat::assert_that(
@@ -86,6 +95,15 @@ make_heatmap <-
          assertthat::is.string(heatmapType),
          msg = "heatmapType is not a string"
       )
+
+      if (is.null(Xrange) == FALSE) {
+
+         assertthat::assert_that(
+            is.numeric(Xrange),
+            msg = "Xrange is not numeric"
+         )
+
+      }
 
       # Analyze data ------------------------------------------------------------
 
@@ -107,52 +125,89 @@ make_heatmap <-
 
       # Reshape dataframe
 
-         heatmap_data <-
-            df %>%
-            dplyr::select(!!massColname, !!fractionColname) %>%
-            dplyr::mutate(mass_bin = cut(!!massColname_sym, breaks = bins, labels = FALSE)) %>%
-            dplyr::group_by(!!fractionColname_sym, mass_bin) %>%
-            dplyr::summarize(dplyr::n()) %>%
-            dplyr::mutate(mass_bin = (mass_bin * binSize) - binSize) %>%
-            dplyr::rename(!!fillname_sym := `dplyr::n()`) %>%
-            dplyr::ungroup() %>%
-            dplyr::mutate(!!fractionColname := forcats::as_factor(!!fractionColname_sym))
+      heatmap_data <-
+         df %>%
+         dplyr::select(!!massColname, !!fractionColname) %>%
+         dplyr::mutate(mass_bin = cut(!!massColname_sym, breaks = bins, labels = FALSE)) %>%
+         dplyr::group_by(!!fractionColname_sym, mass_bin) %>%
+         dplyr::summarize(dplyr::n()) %>%
+         dplyr::mutate(mass_bin = (mass_bin * binSize) - binSize) %>%
+         dplyr::rename(!!fillname_sym := `dplyr::n()`) %>%
+         dplyr::ungroup() %>%
+         dplyr::mutate(!!fractionColname := forcats::as_factor(!!fractionColname_sym))
+
+      # Make plot
+
+      heatmap <-
+         heatmap_data %>%
+         ggplot2::ggplot(
+            ggplot2::aes(
+               mass_bin/1000, !!fractionColname_sym,
+               fill = !!fillname_sym
+            )
+         ) +
+         ggplot2::geom_tile() +
+         ggplot2::scale_y_discrete(
+            limits = rev(
+               levels(heatmap_data %>% dplyr::pull(!!fractionColname))
+            )
+         ) +
+         ggplot2::scale_x_continuous(
+            breaks = scales::pretty_breaks()
+         ) +
+         ggplot2::labs(
+            x = "Mass Bin (kDa)",
+            y = "Fraction"
+         ) +
+         ggplot2::theme_minimal() +
+         ggplot2::theme(
+            text = ggplot2::element_text(size=18),
+            panel.grid.major = ggplot2::element_line(color = "gray"),
+            panel.grid.minor = ggplot2::element_line(color = "lightgray")
+         )
+
+      # Add Xrange to plot
+
+      if (is.null(Xrange) == FALSE) {
 
          heatmap <-
-            heatmap_data %>%
-            ggplot2::ggplot(
-               ggplot2::aes(
-                  mass_bin/1000, !!fractionColname_sym,
-                  fill = !!fillname_sym
-               )
-            ) +
-            ggplot2::geom_tile() +
-            ggplot2::scale_fill_viridis_c(option = "C", direction = -1) +
-            ggplot2::xlim(
-               0,
-               plyr::round_any(
-                  max(
-                     heatmap_data$mass_bin/1000),
-                  5,
-                  f = ceiling
-               )
-            ) +
-            ggplot2::scale_y_discrete(
-               limits = rev(
-                  levels(heatmap_data %>% dplyr::pull(!!fractionColname))
-                  )
-               ) +
-            ggplot2::labs(
-               x = "Mass Bin (kDa)",
-               y = "Fraction"
-            ) +
-            ggplot2::theme_minimal() +
-            ggplot2::theme(text = ggplot2::element_text(size=18))
+            heatmap +
+            ggplot2::scale_x_continuous(
+               breaks = scales::pretty_breaks(),
+               limits = Xrange,
+               expand = c(0,0)
+            )
+      }
 
+      # Specify count range for heatmap fill
+
+      if (is.null(countRange) == TRUE) {
+
+         heatmap <-
+            heatmap +
+            ggplot2::scale_fill_viridis_c(option = "C", direction = -1)
+
+      } else {
+
+         heatmap <-
+            heatmap +
+            ggplot2::scale_fill_gradient2(
+               low = "#F0F921FF",
+               mid = "#CC4678FF",
+               high = "#0D0887FF",
+               midpoint = mean(countRange),
+               limits = c(floor(countRange[[1]]), ceiling(countRange[[2]]))
+            )
+
+      }
 
       # Save heatmaps ---------------------------------------------------
 
       if (savePDF == TRUE) {
+
+         if (dir.exists(outputDir) == FALSE) {
+            dir.create(outputDir)
+         }
 
          pdf(
             file = glue::glue("{outputDir}/{pdfPrefix}_{heatmapType}_heatmap.pdf"),

@@ -7,7 +7,7 @@
 #' @param UpSetlist A list of lists of identifiers properly formatted for use by the
 #' UpSetR::upset() function. This can be provided by dissect_TDsummary().
 #' @param UpSetType Type of UpSet plot to make. This only affects the axis
-#' titles. Possible values are "protein" or "proteoform".
+#' titles and filename. Typical values are "Protein" or "Proteoform".
 #'
 #' @return
 #' An UpSet plot created by UpSetR::upset(). If savePDF is TRUE, a PDF is saved
@@ -30,92 +30,62 @@
 UpSet_maker <-
    function(
       UpSetlist,
-      UpSetType = "protein",
+      UpSetType = "Protein",
       savePDF = FALSE,
       outputDir = getwd()
    ) {
 
 
-      if (UpSetType == "protein") {
-         UpSet <-
-            UpSetlist %>%
-            purrr::map(
-               function(proteinlist)
-               {
-                  UpSetR::upset(
-                     UpSetR::fromList(proteinlist),
-                     sets = rev(names(proteinlist)),
-                     nintersects = NA,
-                     sets.x.label = "Total Protein IDs",
-                     keep.order = T,
-                     mainbar.y.label = "Unique Protein IDs in Intersection",
-                     text.scale =  c(1.5, 1.2, 1.5, 1.5, 1.2, 0.9),
-                     point.size = 2,
-                     line.size = 0.75,
-                     group.by = "degree"
-                  )
-               }
-            )
-      }
+      # Assertions --------------------------------------------------------------
 
-      # UpSet plot, proteoforms by fraction ---------------------------------------------------------
+      assertthat::assert_that(
+         is.list(UpSetlist),
+         msg = "UpSetlist is not a list object"
+      )
 
-      if (UpSetType == "proteoform") {
+      assertthat::assert_that(
+         assertthat::is.string(UpSetType),
+         msg = "UpSetType is not a string"
+      )
 
-         UpSet <-
-            UpSetlist %>%
-            purrr::map(
+      assertthat::assert_that(
+         assertthat::is.flag(savePDF),
+         msg = "savePDF should be TRUE or FALSE"
+      )
 
-               function(proteoformlist)
-               {
+      assertthat::assert_that(
+         assertthat::is.dir(dirname(outputDir)),
+         msg = "outputDir parent directory is not a recognized path"
+      )
 
-                  UpSetR::upset(
-                     UpSetR::fromList(proteoformlist),
-                     sets = rev(names(proteoformlist)),
-                     nintersects = NA,
-                     sets.x.label = "Total Proteoform IDs",
-                     keep.order = T,
-                     mainbar.y.label = "Unique Proteoform IDs in Intersection",
-                     text.scale =  c(1.5, 1.2, 1.5, 1.5, 1.2, 0.9),
-                     point.size = 2,
-                     line.size = 0.75,
-                     group.by = "degree"
-                  )
+      # Make plots --------------------------------------------------------------
 
-               }
-
-            )
-
-      }
-
-
-      # UpSet plots, proteins by run - unfractionated ---------------------------
-
-      if (UpSetType == "protein_unfrac") {
-
-         UpSet <-
-            UpSetlist %>%
-            purrr::map(
-
-               function(proteinlist)
-               {
-                  UpSetR::upset(
-                     UpSetR::fromList(proteinlist),
-                     sets = rev(names(proteinlist)),
-                     nintersects = NA,
-                     sets.x.label = "Total Protein IDs",
-                     keep.order = T,
-                     mainbar.y.label = "Unique Protein IDs in Intersection",
-                     text.scale =  c(1.5, 1.2, 1.5, 1.5, 1.2, 0.9),
-                     point.size = 2,
-                     line.size = 0.75,
-                     group.by = "degree"
-                  )
-               }
-            )
-      }
+      UpSet <-
+         UpSetlist %>%
+         purrr::map(
+            function(list)
+            {
+               UpSetR::upset(
+                  UpSetR::fromList(list),
+                  sets = rev(names(list)),
+                  nintersects = NA,
+                  sets.x.label = glue::glue("Total {UpSetType} IDs"),
+                  keep.order = T,
+                  mainbar.y.label =
+                     glue::glue("Unique {UpSetType} IDs in Intersection"),
+                  text.scale =  c(1.5, 1.2, 1.5, 1.5, 1.2, 0.9),
+                  point.size = 2,
+                  line.size = 0.75,
+                  group.by = "degree"
+               )
+            }
+         )
 
       if (savePDF == TRUE) {
+
+         if (dir.exists(outputDir) == FALSE) {
+            dir.create(outputDir)
+         }
 
          message(glue::glue("\nSaving {UpSetType} UpSet plots to outputDir"))
          purrr::map2(

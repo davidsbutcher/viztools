@@ -166,14 +166,16 @@ testHitRep <-
       hit_report,
       isoformReport = isoform_report,
       proteoformReport = proteoform_report,
-      IDtype = "proteoform"
+      IDtype = "protein"
    )
 
 make_heatmap(
-   testHitRep2,
-   heatmapType = "Proteoform",
+   testHitRep,
+   heatmapType = "Protein",
    savePDF = F,
-   binSize = 1000
+   binSize = 1000,
+   Xrange = c(0,55),
+   countRange = c(0,70)
 )
 
 
@@ -199,4 +201,38 @@ tibble::tibble(
       binSize = 1000
    )
 
+## For testing waffle_iron
 
+df <-
+   readxl::read_xlsx(
+      "C:/Users/ranar/Documents/zdrive_local/EcoliMG1655_TDdatasummary.xlsx",
+      sheet = "summary_byfraction"
+   )
+
+waffle_iron(
+   df,
+   shortName = "peppi04d",
+   savePDF = F,
+   outputDir = "C:/Users/ranar/Documents/viztools_output"
+)
+
+# For testing make_intersect_plot
+
+IDlist <-
+dissect_TDsummary(
+   "C:/Users/ranar/Documents/zdrive_local/EcoliMG1655_TDdatasummary.xlsx",
+   c("peppi04d", "peppi09a", "gf06a", "gf05c")
+) %>%
+   make_intersect_plot(
+      shortNames = c("peppi04d", "peppi09a", "gf06a", "gf05c"),
+      mediumUsed = c("M9", "M9", "M9", "M9"),
+      fracMethod = c("PEPPI", "PEPPI", "GF", "GF"),
+      Yrange = c(0,100),
+      plotType = "Protein"
+   )
+
+shortNames <- c("peppi04d", "peppi09a", "gf06a", "gf05c")
+
+mediumUsed <- c("M9", "M9", "M9", "M9")
+
+fracMethod <- c("PEPPI", "PEPPI", "GF", "GF")

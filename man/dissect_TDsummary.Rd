@@ -29,7 +29,8 @@ for use with the UpSet_maker() function.
 Extracts data from sheets in a top-down summary file and formats it for use
 in making an UpSet plot with UpSet_maker(). Searches for a sheet in the
 TDsummary named according to the arguments shortName and proteinSheetName,
-pformSheetName, or unfracSheetName, e.g. "peppi04d_fractions_protein".
+pformSheetName, or unfracSheetName in the form "{shortName}_{sheetName}",
+e.g. "peppi04d_fractions_protein".
 }
 \examples{
 \dontrun{

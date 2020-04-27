@@ -31,9 +31,9 @@ modify_hit_report <-
             dplyr::mutate(filename = `File Name`) %>%
             add_fraction() %>%
             dplyr::select(fraction, everything()) %>%
-            dplyr::group_by(fraction, PFR) %>%
-            dplyr::filter(`Global Q-value` == min(`Global Q-value`)) %>%
+            dplyr::group_by(fraction, Accession) %>%
             dplyr::filter(Accession %in% isoforms) %>%
+            dplyr::filter(`Global Q-value` == min(`Global Q-value`)) %>%
             dplyr::filter(`P-score` == min(`P-score`)) %>%
             dplyr::filter(`E-value` == min(`E-value`)) %>%
             dplyr::filter(`C-score` == max(`C-score`)) %>%
@@ -44,16 +44,16 @@ modify_hit_report <-
 
          pforms <-
             proteoformReport %>%
-            dplyr::pull(Accession)
+            dplyr::pull(PFR)
 
          heatmap_data <-
             hitReport %>%
             dplyr::mutate(filename = `File Name`) %>%
             add_fraction() %>%
             dplyr::select(fraction, everything()) %>%
-            dplyr::group_by(fraction, Accession) %>%
+            dplyr::group_by(fraction, PFR) %>%
+            dplyr::filter(PFR %in% pforms) %>%
             dplyr::filter(`Global Q-value` == min(`Global Q-value`)) %>%
-            dplyr::filter(Accession %in% pforms) %>%
             dplyr::filter(`P-score` == min(`P-score`)) %>%
             dplyr::filter(`E-value` == min(`E-value`)) %>%
             dplyr::filter(`C-score` == max(`C-score`)) %>%

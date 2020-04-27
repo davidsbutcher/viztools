@@ -6,7 +6,7 @@
 \usage{
 UpSet_maker(
   UpSetlist,
-  UpSetType = "protein",
+  UpSetType = "Protein",
   savePDF = FALSE,
   outputDir = getwd()
 )
@@ -16,7 +16,7 @@ UpSet_maker(
 UpSetR::upset() function. This can be provided by dissect_TDsummary().}
 
 \item{UpSetType}{Type of UpSet plot to make. This only affects the axis
-titles. Possible values are "protein" or "proteoform".}
+titles and filename. Typical values are "Protein" or "Proteoform".}
 }
 \value{
 An UpSet plot created by UpSetR::upset(). If savePDF is TRUE, a PDF is saved
