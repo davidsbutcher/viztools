@@ -1,0 +1,28 @@
+---
+title: "viztools"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A variety of visualization tools for top-down proteomics.
+
+## Installation
+
+Install from GitHub:
+
+```{r, eval = FALSE}
+
+remotes::install_github("davidsbutcher/viztools")
+
+```
+
+## Usage
+
+## Dependencies
+
+## License and attribution
+
+Package developed by David S. Butcher and licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).

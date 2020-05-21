@@ -180,7 +180,6 @@ make_heatmap(
 
 
 
-
 tibble::tibble(
    "fraction" = c(1,1,1,1,2,2,3,3,3,3),
    "ObservedPrecursorMass" = c(1500,3000,4200,4250,3500,4500,10500,12050,12075,14050)
@@ -236,3 +235,19 @@ shortNames <- c("peppi04d", "peppi09a", "gf06a", "gf05c")
 mediumUsed <- c("M9", "M9", "M9", "M9")
 
 fracMethod <- c("PEPPI", "PEPPI", "GF", "GF")
+
+# ASMS 2020 potential figures
+
+
+df <-
+   readxl::read_xlsx(
+      "C:/Users/ranar/Documents/zdrive_local/EcoliMG1655_TDdatasummary.xlsx",
+      sheet = "summary_byfraction"
+   )
+
+waffle_iron(
+   df,
+   shortName = "gf06a",
+   savePDF = T,
+   outputDir = "C:/Users/ranar/Documents/viztools_output"
+)
