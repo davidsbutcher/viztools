@@ -1,9 +1,9 @@
 
-#' Calculate highest intensity charge state
+#' Predict the highest intensity charge state using hierarchical clustering
 #'
 #' @description
 #' Calculates the theoretical highest intensity charge state based on a method
-#' inspired by Douglass and Venter (dx.doi.org/10.1021/ac401245r).
+#' adapted from Douglass and Venter (dx.doi.org/10.1021/ac401245r).
 #'
 #' @param sequence Sequence of proteoform to find HICS for. Can only include the 20
 #' canonical amino acids.
@@ -13,12 +13,12 @@
 #' @export
 #'
 #' @examples
-#' calculate_HICS("AAAAKAAAA", height = 4)
+#' calculate_HICS("AAAAKAAAA", height = 3)
 
-calculate_HICS <-
+predict_HICS_hclust <-
    function(
       sequence,
-      height = 4
+      height = 3
    ) {
 
       # Accepted amino acids ----------------------------------------------------
@@ -57,15 +57,15 @@ calculate_HICS <-
          sequence %>%
          purrr::map_int(
             ~stringr::str_count(.x, basicAminoAcids) %>%
-               max()
+               sum()
          ) %>%
          purrr::map_lgl(
-            ~.x >= 2
+            ~.x >= 1
          )
 
       if (any(!enoughBasicResidues) == TRUE) {
 
-         warning("One or more sequences don't have enough basic residues to calculate HICS (should be >=2)")
+         warning("One or more sequences don't have enough basic residues to use hierarchical clustering (should be >=1). Using number of basic residues instead (including N-terminus)")
 
       }
 
@@ -86,14 +86,15 @@ calculate_HICS <-
             approvedSequence,
             ~stringr::str_locate_all(.x, basicAminoAcids) %>%
                purrr::reduce(dplyr::union_all) %>%
+               c(1) %>%
                unique() %>%
                sort() %>%
                dist() %>%
                hclust() %>%
                cutree(h = height) %>%
-               max() %>%
-               {. + 1},
-            .else = as.integer
+               max(),
+            .else =
+               ~sum(stringr::str_count(., basicAminoAcids))+1
          ) %>%
             unlist()
       )
