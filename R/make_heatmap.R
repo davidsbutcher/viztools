@@ -20,7 +20,8 @@
 #' @param heatmapType Type of heatmap to create, typically "Protein" or
 #' "Proteoform".This only affects the legend title and output file name and
 #' can be any string.
-#' @param Xrange Numeric vector of length 2 specifying range of heatmap in kDa.
+#' @param orientation Controls orientation of heatmap. Set to "h" for horizontal (mass bins on X-axis) or "v" for vertical.
+#' @param axisRange Numeric vector of length 2 specifying range of heatmap in kDa.
 #' Defaults to NULL, and range is determined by rounding highest mass bin up to
 #' the nearest interval of 5.
 #' @param countRange Numeric vector of length 2 specifying range of counts to
@@ -54,13 +55,14 @@ make_heatmap <-
    function(
       df,
       heatmapType = "Protein",
+      orientation = "h",
       binSize = 1000,   # SPECIFY SIZE for heatmap mass bins
       savePDF = FALSE,
       outputDir = getwd(),
       pdfPrefix = format(Sys.time(), "%Y%m%d_%H%M%S"),
       massColname = "ObservedPrecursorMass",
       fractionColname = "fraction",
-      Xrange = NULL,
+      axisRange = NULL,
       countRange = NULL
    ) {
 
@@ -96,11 +98,16 @@ make_heatmap <-
          msg = "heatmapType is not a string"
       )
 
-      if (is.null(Xrange) == FALSE) {
+      assertthat::assert_that(
+         orientation == "h" | orientation == "v",
+         msg = "orientation not set to 'h' or 'v'"
+      )
+
+      if (is.null(axisRange) == FALSE) {
 
          assertthat::assert_that(
-            is.numeric(Xrange),
-            msg = "Xrange is not numeric"
+            is.numeric(axisRange),
+            msg = "axisRange is not numeric"
          )
 
       }
@@ -136,35 +143,9 @@ make_heatmap <-
          dplyr::ungroup() %>%
          dplyr::mutate(!!fractionColname := forcats::as_factor(!!fractionColname_sym))
 
-      # Make plot
+      # Make horizontal plot
 
-      # heatmap <-
-      #    heatmap_data %>%
-      #    ggplot2::ggplot(
-      #       ggplot2::aes(
-      #          mass_bin/1000, !!fractionColname_sym,
-      #          fill = !!fillname_sym
-      #       )
-      #    ) +
-      #    ggplot2::geom_tile() +
-      #    ggplot2::scale_y_discrete(
-      #       limits = rev(
-      #          levels(heatmap_data %>% dplyr::pull(!!fractionColname))
-      #       )
-      #    ) +
-      #    ggplot2::scale_x_continuous(
-      #       breaks = scales::pretty_breaks()
-      #    ) +
-      #    ggplot2::labs(
-      #       x = "Mass Bin (kDa)",
-      #       y = "Fraction"
-      #    ) +
-      #    ggplot2::theme_minimal() +
-      #    ggplot2::theme(
-      #       text = ggplot2::element_text(size=18),
-      #       panel.grid.major = ggplot2::element_line(color = "gray"),
-      #       panel.grid.minor = ggplot2::element_line(color = "lightgray")
-      #    )
+      if (orientation == "h") {
 
       heatmap <-
          heatmap_data %>%
@@ -196,17 +177,68 @@ make_heatmap <-
             panel.grid.minor = ggplot2::element_line(color = "lightgray")
          )
 
-      # Add Xrange to plot
+      # Add axisRange to plot
 
-      if (is.null(Xrange) == FALSE) {
+      if (is.null(axisRange) == FALSE) {
 
          heatmap <-
             heatmap +
             ggplot2::scale_x_continuous(
                breaks = scales::pretty_breaks(),
-               limits = Xrange,
+               limits = axisRange,
                expand = c(0,0)
             )
+      }
+
+      }
+
+      # Make vertical plot
+
+      if (orientation == "v") {
+
+         heatmap <-
+            heatmap_data %>%
+            ggplot2::ggplot(
+               ggplot2::aes(
+                  !!fractionColname_sym,
+                  mass_bin/1000,
+                  fill = !!fillname_sym
+               )
+            ) +
+            ggplot2::geom_tile(
+               position = ggplot2::position_nudge(y = (binSize/2)/1000)
+            ) +
+            ggplot2::scale_x_discrete(
+               limits =
+                  levels(heatmap_data %>% dplyr::pull(!!fractionColname))
+            ) +
+            ggplot2::scale_y_continuous(
+               breaks = scales::pretty_breaks()
+            ) +
+            ggplot2::labs(
+               y = "Mass Bin (kDa)",
+               x = "Fraction"
+            ) +
+            ggplot2::theme_minimal() +
+            ggplot2::theme(
+               text = ggplot2::element_text(size=18),
+               panel.grid.major = ggplot2::element_line(color = "gray"),
+               panel.grid.minor = ggplot2::element_line(color = "lightgray")
+            )
+
+         # Add axisRange to plot
+
+         if (is.null(axisRange) == FALSE) {
+
+            heatmap <-
+               heatmap +
+               ggplot2::scale_y_continuous(
+                  breaks = scales::pretty_breaks(),
+                  limits = axisRange,
+                  expand = c(0,0)
+               )
+         }
+
       }
 
       # Specify count range for heatmap fill

@@ -3,7 +3,8 @@
 #'
 #' @description
 #' Uses a data frame containing mass and fraction columns to generate a heatmap
-#' showing the distribution of masses per fraction.
+#' showing the distribution of masses per fraction with a vertical orientation.
+#' DEPRECATED because make_heatmap() now supports vertical orientations.
 #'
 #' @param df A data frame containing columns for mass (in Daltons) and fraction.
 #' @param outputDir Directory to place output files in.
