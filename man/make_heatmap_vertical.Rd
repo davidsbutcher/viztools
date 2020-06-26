@@ -55,7 +55,8 @@ ggplot2::scale_fill_viridis_c(option = "C", direction = -1)}
 }
 \description{
 Uses a data frame containing mass and fraction columns to generate a heatmap
-showing the distribution of masses per fraction.
+showing the distribution of masses per fraction with a vertical orientation.
+DEPRECATED because make_heatmap() now supports vertical orientations.
 }
 \examples{
 

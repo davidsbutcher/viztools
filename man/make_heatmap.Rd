@@ -7,13 +7,14 @@
 make_heatmap(
   df,
   heatmapType = "Protein",
+  orientation = "h",
   binSize = 1000,
   savePDF = FALSE,
   outputDir = getwd(),
   pdfPrefix = format(Sys.time(), "\%Y\%m\%d_\%H\%M\%S"),
   massColname = "ObservedPrecursorMass",
   fractionColname = "fraction",
-  Xrange = NULL,
+  axisRange = NULL,
   countRange = NULL
 )
 }
@@ -23,6 +24,8 @@ make_heatmap(
 \item{heatmapType}{Type of heatmap to create, typically "Protein" or
 "Proteoform".This only affects the legend title and output file name and
 can be any string.}
+
+\item{orientation}{Controls orientation of heatmap. Set to "h" for horizontal (mass bins on X-axis) or "v" for vertical.}
 
 \item{binSize}{Size of the mass bin in Daltons. Masses in the data frame
 should be in Daltons.}
@@ -41,7 +44,7 @@ time.}
 \item{fractionColname}{Name of column containing fractions. Defaults to
 "fraction".}
 
-\item{Xrange}{Numeric vector of length 2 specifying range of heatmap in kDa.
+\item{axisRange}{Numeric vector of length 2 specifying range of heatmap in kDa.
 Defaults to NULL, and range is determined by rounding highest mass bin up to
 the nearest interval of 5.}
 

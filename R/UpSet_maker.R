@@ -7,7 +7,9 @@
 #' @param UpSetlist A list of lists of identifiers properly formatted for use by the
 #' UpSetR::upset() function. This can be provided by dissect_TDsummary().
 #' @param UpSetType Type of UpSet plot to make. This only affects the axis
-#' titles and filename. Typical values are "Protein" or "Proteoform".
+#' titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".
+#' @param savePDF Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.
+#' @param outputDir Directory to save PDF output. Defaults to R working directory.
 #'
 #' @return
 #' An UpSet plot created by UpSetR::upset(). If savePDF is TRUE, a PDF is saved

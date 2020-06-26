@@ -7,7 +7,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-A variety of visualization tools for top-down proteomics.
+A variety of visualization and analysis tools for top-down proteomics. Designed by and for DS and not necessarily user-friendly.
 
 ## Installation
 
@@ -23,6 +23,8 @@ remotes::install_github("davidsbutcher/viztools")
 
 ## Dependencies
 
+
+
 ## License and attribution
 
-Package developed by David S. Butcher and licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+Package developed by David S. Butcher and licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Imported packages are licensed separately.

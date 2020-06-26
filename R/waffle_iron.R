@@ -4,14 +4,17 @@
 #' Make a waffle plot from a data frame containing columns for short name,
 #' fraction, and subcellular localizations.
 #'
-#' @param df
-#' @param shortName
-#' @param savePDF
-#' @param outputDir
-#' @param shortname_colname
-#' @param fraction_colname
-#' @param loc_colnames
-#' @param waffleType
+#' @param df A data frame containing columns for shortname, fraction, and localization counts columns.
+#' @param shortName Shortname to use for making waffle plot.
+#' @param savePDF Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.
+#' @param outputDir Directory to save PDF output. Defaults to R working directory.
+#' @param shortname_colname Name of data frame column containing shortnames. Defaults to 'Short name'.
+#' @param fraction_colname Name of data frame column containing fractions. Defaults to 'fraction'.
+#' @param loc_colnames Vector of names of data frame columns containing counts of
+#' cytosolic, membrane, periplasmic, and none-of-the-above/unannotated proteins. Defaults to
+#' c("Cytosolic Proteins", "Membrane Proteins", "Periplasmic Proteins", "NOTA Proteins").
+#' @param waffleType Type of Waffle plot to make. This only affects the axis
+#' titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".
 #'
 #' @return
 #' @export
@@ -22,7 +25,7 @@ waffle_iron <-
    function(
       df,
       shortName = NULL,
-      savePDF = TRUE,
+      savePDF = FALSE,
       outputDir = getwd(),
       shortname_colname = "Short name",
       fraction_colname = "fraction",

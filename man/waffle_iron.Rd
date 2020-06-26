@@ -7,7 +7,7 @@
 waffle_iron(
   df,
   shortName = NULL,
-  savePDF = TRUE,
+  savePDF = FALSE,
   outputDir = getwd(),
   shortname_colname = "Short name",
   fraction_colname = "fraction",
@@ -17,7 +17,24 @@ waffle_iron(
 )
 }
 \arguments{
-\item{waffleType}{}
+\item{df}{A data frame containing columns for shortname, fraction, and localization counts columns.}
+
+\item{shortName}{Shortname to use for making waffle plot.}
+
+\item{savePDF}{Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.}
+
+\item{outputDir}{Directory to save PDF output. Defaults to R working directory.}
+
+\item{shortname_colname}{Name of data frame column containing shortnames. Defaults to 'Short name'.}
+
+\item{fraction_colname}{Name of data frame column containing fractions. Defaults to 'fraction'.}
+
+\item{loc_colnames}{Vector of names of data frame columns containing counts of
+cytosolic, membrane, periplasmic, and none-of-the-above/unannotated proteins. Defaults to
+c("Cytosolic Proteins", "Membrane Proteins", "Periplasmic Proteins", "NOTA Proteins").}
+
+\item{waffleType}{Type of Waffle plot to make. This only affects the axis
+titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".}
 }
 \value{
 
