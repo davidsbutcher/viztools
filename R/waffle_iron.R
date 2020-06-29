@@ -1,40 +1,46 @@
 #' Make a waffle plot
 #'
 #' @description
-#' Make a waffle plot from a data frame containing columns for short name,
-#' fraction, and subcellular localizations.
+#' Make a waffle plot from a data frame containing columns for
+#' fraction and subcellular localization.
 #'
-#' @param df A data frame containing columns for shortname, fraction, and localization counts columns.
-#' @param shortName Shortname to use for making waffle plot.
+#' @param df A data frame containing columns for fraction and subcellular localization counts.
 #' @param savePDF Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.
 #' @param outputDir Directory to save PDF output. Defaults to R working directory.
-#' @param shortname_colname Name of data frame column containing shortnames. Defaults to 'Short name'.
+#' @param outputPrefix String to use to prepend heatmap output filenames.
+#' Defaults to date and time.
 #' @param fraction_colname Name of data frame column containing fractions. Defaults to 'fraction'.
-#' @param loc_colnames Vector of names of data frame columns containing counts of
-#' cytosolic, membrane, periplasmic, and none-of-the-above/unannotated proteins. Defaults to
-#' c("Cytosolic Proteins", "Membrane Proteins", "Periplasmic Proteins", "NOTA Proteins").
 #' @param waffleType Type of Waffle plot to make. This only affects the axis
 #' titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".
 #'
 #' @return
+#' A waffle plot (ggplot object)
+#'
 #' @export
 #'
 #' @examples
+#'
+#' df <-
+#'    data.frame(
+#'       "fraction" =
+#'          c(1,2,3,4,5,6),
+#'       "Cytosol" =
+#'          c(20,25,30,30,20,10),
+#'       "Membrane" =
+#'          c(15,10,20,25,10,5)
+#'    )
+#'
+#'    waffle_iron(
+#'       df
+#'    )
 
 waffle_iron <-
    function(
       df,
-      shortName = NULL,
       savePDF = FALSE,
       outputDir = getwd(),
-      shortname_colname = "Short name",
+      outputPrefix = format(Sys.time(), "%Y%m%d_%H%M%S"),
       fraction_colname = "fraction",
-      loc_colnames = c(
-         "Cytosolic Proteins",
-         "Membrane Proteins",
-         "Periplasmic Proteins",
-         "NOTA Proteins"
-      ),
       waffleType = "Protein"
    ) {
 
@@ -47,14 +53,20 @@ waffle_iron <-
 
       assertthat::assert_that(
          assertthat::has_name(
-            df, c(shortname_colname, fraction_colname, loc_colnames)
+            df, c(fraction_colname)
          ),
-         msg = "df is missing a needed column"
+         msg = "df is missing fraction column"
       )
 
       assertthat::assert_that(
          assertthat::is.dir(dirname(outputDir)),
          msg = "outputDir parent directory is not a recognized path"
+      )
+
+
+      assertthat::assert_that(
+         assertthat::is.string(outputPrefix),
+         msg = "outputPrefix is not a string"
       )
 
       assertthat::assert_that(
@@ -67,68 +79,42 @@ waffle_iron <-
          msg = "waffleType is not a string"
       )
 
-      # Break out localization column names -------------------------------------
-
-      cyt_colname <- loc_colnames[[1]]
-
-      mem_colname <- loc_colnames[[2]]
-
-      peri_colname <- loc_colnames[[3]]
-
-      nota_colname <- loc_colnames[[4]]
 
       # Create quosures for tidy evaluation -------------------------------------
 
-      shortname_colname_enq <- rlang::enquo(shortname_colname)
-      shortname_colname_sym <- rlang::sym(shortname_colname)
-
       fraction_colname_enq <- rlang::enquo(fraction_colname)
-
-      cyt_colname_enq <- rlang::enquo(cyt_colname)
-      mem_colname_enq <- rlang::enquo(mem_colname)
-      peri_colname_enq <- rlang::enquo(peri_colname)
-      nota_colname_enq <- rlang::enquo(nota_colname)
-
+      fraction_colname_sym <- rlang::sym(fraction_colname)
 
       # Create waffle input -----------------------------------------------------
 
-      df <-
-         df %>%
-         dplyr::filter(!!shortname_colname_sym == shortName)
-
-      fractionlist <-
-         df %>%
-         dplyr::pull(!!fraction_colname_enq)
 
       waffledata <-
-         tibble::tibble(
-            Localization = factor(
-               c(
-                  rep("Cytosolic", length(fractionlist)),
-                  rep("Membrane", length(fractionlist)),
-                  rep("Periplasmic", length(fractionlist)),
-                  rep("Unannotated", length(fractionlist))
-               )
-            ),
-            Count = c(
-               dplyr::pull(df, !!cyt_colname_enq),
-               dplyr::pull(df, !!mem_colname_enq),
-               dplyr::pull(df, !!peri_colname_enq),
-               dplyr::pull(df, !!nota_colname_enq)
-            ),
-            Fraction = rep(fractionlist, 4)
+         df %>%
+         tidyr::pivot_longer(
+            cols = -!!fraction_colname_enq,
+            names_to = "localization",
+            values_to = "count"
          ) %>%
-         dplyr::group_by(Fraction, Localization) %>%
-         dplyr::summarize(Count)
+         dplyr::mutate(
+            !!fraction_colname_enq := forcats::as_factor(!!fraction_colname_sym),
+         ) %>%
+         dplyr::filter(
+            is.na(count) == FALSE
+         )
+
 
 
       # Make waffle plot --------------------------------------------------------
 
       output_waffle <-
          waffledata %>%
-         ggplot2::ggplot(ggplot2::aes(fill = Localization, values = Count)) +
-         waffle::geom_waffle(color = "white", size = 0.35, n_rows = 10, flip = TRUE) +
-         ggplot2::facet_wrap(~Fraction, nrow = 1, strip.position = "bottom") +
+         ggplot2::ggplot(
+            ggplot2::aes(fill = localization, values = count)
+         ) +
+         waffle::geom_waffle(
+            color = "white", size = 0.35, n_rows = 10, flip = TRUE
+         ) +
+         ggplot2::facet_wrap(~fraction, nrow = 1, strip.position = "bottom") +
          ggplot2::scale_x_discrete(expand=c(0,0)) +
          ggplot2::scale_y_continuous(
             labels = function(x) x * 10, # this multiplier must be equal to n_rows above
@@ -158,7 +144,7 @@ waffle_iron <-
          }
 
          pdf(
-            file = glue::glue("{outputDir}/{shortName}_{waffleType}_waffle_plot.pdf"),
+            file = glue::glue("{outputDir}/{outputPrefix}_{waffleType}_waffle_plot.pdf"),
             width = 8,
             height = 5,
             bg = "transparent"

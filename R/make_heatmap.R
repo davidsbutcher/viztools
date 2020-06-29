@@ -6,61 +6,64 @@
 #' showing the distribution of masses per fraction.
 #'
 #' @param df A data frame containing columns for mass (in Daltons) and fraction.
-#' @param outputDir Directory to place output files in.
+#' @param plotType Type of heatmap to create, typically "Protein" or
+#' "Proteoform".This only affects the legend title and output file name and
+#' can be any string.
+#' @param orientation Controls orientation of heatmap. Set to "h" for horizontal
+#' (mass bins on X-axis) or "v" for vertical.
 #' @param binSize Size of the mass bin in Daltons. Masses in the data frame
 #' should be in Daltons.
 #' @param savePDF Boolean value (TRUE or FALSE). Should a PDF be saved to the
 #' output directory?
-#' @param pdfPrefix String to use to prepend heatmap names. Defaults to date and
-#' time.
+#' @param outputDir Directory to place output files in.
+#' @param outputPrefix String to use to prepend heatmap output filenames.
+#' Defaults to date and time.
 #' @param massColname Name of column containing masses. Defaults to
-#' "ObservedPrecursorMass".
+#' "mass".
 #' @param fractionColname Name of column containing fractions. Defaults to
 #' "fraction".
-#' @param heatmapType Type of heatmap to create, typically "Protein" or
-#' "Proteoform".This only affects the legend title and output file name and
-#' can be any string.
-#' @param orientation Controls orientation of heatmap. Set to "h" for horizontal (mass bins on X-axis) or "v" for vertical.
 #' @param axisRange Numeric vector of length 2 specifying range of heatmap in kDa.
 #' Defaults to NULL, and range is determined by rounding highest mass bin up to
 #' the nearest interval of 5.
 #' @param countRange Numeric vector of length 2 specifying range of counts to
 #' use for generating heatmap fill color range. Defaults to NULL, which
 #' determines color range automatically using
-#' ggplot2::scale_fill_viridis_c(option = "C", direction = -1)
+#' ggplot2::scale_fill_viridis_c(option = "C", direction = -1). Useful for
+#' creating multiple heatmaps with matching fill color ranges.
 #'
 #' @return
+#' A heatmap (a ggplot object)
 #'
 #' @importFrom magrittr %>%
 #'
 #' @export
 #'
 #' @examples
+#' df <-
+#'    data.frame(
+#'       "fraction" =
+#'          c(1,1,1,1,2,2,3,3,3,3),
+#'       "mass" =
+#'          c(1500,3000,4200,4250,3500,4500,10500,12050,12075,14050)
+#'    )
 #'
-#' library(magrittr)
-#'
-#' tibble::tibble(
-#'    "fraction" =
-#'       c(1,1,1,1,2,2,3,3,3,3),
-#'    "ObservedPrecursorMass" =
-#'       c(1500,3000,4200,4250,3500,4500,10500,12050,12075,14050)
-#' ) %>%
 #'    make_heatmap(
-#'       heatmapType = "Proteoform",
+#'       df,
+#'       plotType = "Protein",
 #'       savePDF = F,
-#'       binSize = 500
+#'       binSize = 1000
 #'    )
 
 make_heatmap <-
    function(
       df,
-      heatmapType = "Protein",
+      plotType = "Protein",
       orientation = "h",
       binSize = 1000,   # SPECIFY SIZE for heatmap mass bins
       savePDF = FALSE,
       outputDir = getwd(),
-      pdfPrefix = format(Sys.time(), "%Y%m%d_%H%M%S"),
-      massColname = "ObservedPrecursorMass",
+      outputPrefix = format(Sys.time(), "%Y%m%d_%H%M%S"),
+      massColname = "mass",
       fractionColname = "fraction",
       axisRange = NULL,
       countRange = NULL
@@ -89,13 +92,13 @@ make_heatmap <-
       )
 
       assertthat::assert_that(
-         assertthat::is.string(pdfPrefix),
-         msg = "pdfPrefix is not a string"
+         assertthat::is.string(outputPrefix),
+         msg = "outputPrefix is not a string"
       )
 
       assertthat::assert_that(
-         assertthat::is.string(heatmapType),
-         msg = "heatmapType is not a string"
+         assertthat::is.string(plotType),
+         msg = "plotType is not a string"
       )
 
       assertthat::assert_that(
@@ -108,6 +111,25 @@ make_heatmap <-
          assertthat::assert_that(
             is.numeric(axisRange),
             msg = "axisRange is not numeric"
+         )
+
+         assertthat::assert_that(
+            length(axisRange) == 2,
+            msg = "axisRange should have a length of 2"
+         )
+
+      }
+
+      if (is.null(countRange) == FALSE) {
+
+         assertthat::assert_that(
+            is.numeric(countRange),
+            msg = "countRange is not numeric"
+         )
+
+         assertthat::assert_that(
+            length(countRange) == 2,
+            msg = "countRange should have a length of 2"
          )
 
       }
@@ -128,7 +150,7 @@ make_heatmap <-
 
       fractionColname <- rlang::enquo(fractionColname)
 
-      fillname_sym <- rlang::sym(glue::glue("{heatmapType}\nCount"))
+      fillname_sym <- rlang::sym(glue::glue("{plotType}\nCount"))
 
       # Reshape dataframe
 
@@ -272,7 +294,7 @@ make_heatmap <-
          }
 
          pdf(
-            file = glue::glue("{outputDir}/{pdfPrefix}_{heatmapType}_heatmap.pdf"),
+            file = glue::glue("{outputDir}/{outputPrefix}_{plotType}_heatmap.pdf"),
             width = 8,
             height = 5,
             bg = "transparent"
