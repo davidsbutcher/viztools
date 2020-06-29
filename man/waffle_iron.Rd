@@ -6,40 +6,48 @@
 \usage{
 waffle_iron(
   df,
-  shortName = NULL,
   savePDF = FALSE,
   outputDir = getwd(),
-  shortname_colname = "Short name",
+  outputPrefix = format(Sys.time(), "\%Y\%m\%d_\%H\%M\%S"),
   fraction_colname = "fraction",
-  loc_colnames = c("Cytosolic Proteins", "Membrane Proteins", "Periplasmic Proteins",
-    "NOTA Proteins"),
   waffleType = "Protein"
 )
 }
 \arguments{
-\item{df}{A data frame containing columns for shortname, fraction, and localization counts columns.}
-
-\item{shortName}{Shortname to use for making waffle plot.}
+\item{df}{A data frame containing columns for fraction and subcellular localization counts.}
 
 \item{savePDF}{Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.}
 
 \item{outputDir}{Directory to save PDF output. Defaults to R working directory.}
 
-\item{shortname_colname}{Name of data frame column containing shortnames. Defaults to 'Short name'.}
+\item{outputPrefix}{String to use to prepend heatmap output filenames.
+Defaults to date and time.}
 
 \item{fraction_colname}{Name of data frame column containing fractions. Defaults to 'fraction'.}
-
-\item{loc_colnames}{Vector of names of data frame columns containing counts of
-cytosolic, membrane, periplasmic, and none-of-the-above/unannotated proteins. Defaults to
-c("Cytosolic Proteins", "Membrane Proteins", "Periplasmic Proteins", "NOTA Proteins").}
 
 \item{waffleType}{Type of Waffle plot to make. This only affects the axis
 titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".}
 }
 \value{
-
+A waffle plot (ggplot object)
 }
 \description{
-Make a waffle plot from a data frame containing columns for short name,
-fraction, and subcellular localizations.
+Make a waffle plot from a data frame containing columns for
+fraction and subcellular localization.
+}
+\examples{
+
+df <-
+   data.frame(
+      "fraction" =
+         c(1,2,3,4,5,6),
+      "Cytosol" =
+         c(20,25,30,30,20,10),
+      "Membrane" =
+         c(15,10,20,25,10,5)
+   )
+
+   waffle_iron(
+      df
+   )
 }

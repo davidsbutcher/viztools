@@ -7,7 +7,8 @@
 #' make_intersect_plot() . Searches for a sheet in the TDsummary named according
 #' to the arguments shortName and proteinSheetName, pformSheetName, or
 #' unfracSheetName in the form "{shortName}_{sheetName}", e.g.
-#' "peppi04d_fractions_protein".
+#' "peppi04d_fractions_protein". This function is included for use in the package
+#' author's workflow and may not be useful for others.
 #'
 #' @param TDsummarypath Full path to TDsummary file. Should be .xlsx format.
 #' @param shortName Analysis shortnames to use to make UpSets.
@@ -28,8 +29,6 @@
 #' }
 #'
 #' @importFrom magrittr %>%
-#'
-#' @export
 
 
 dissect_TDsummary <-

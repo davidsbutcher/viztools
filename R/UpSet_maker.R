@@ -1,12 +1,12 @@
 #' Make an UpSet plot from a list of unique identifiers
 #'
 #' @description
-#' UpSet_maker() creates an UpSet plot from a list of unique identifiers such as
+#' make_UpSet_plot() creates an UpSet plot from a list of unique identifiers such as
 #' UniProt accession numbers or proteoform record numbers.
 #'
 #' @param UpSetlist A list of lists of identifiers properly formatted for use by the
-#' UpSetR::upset() function. This can be provided by dissect_TDsummary().
-#' @param UpSetType Type of UpSet plot to make. This only affects the axis
+#' UpSetR::upset() function.
+#' @param plotType Type of UpSet plot to make. This only affects the axis
 #' titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".
 #' @param savePDF Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.
 #' @param outputDir Directory to save PDF output. Defaults to R working directory.
@@ -16,7 +16,7 @@
 #' to the output directory.
 #'
 #' @examples
-#' UpSet_maker(
+#' make_UpSet_plot(
 #'    list(
 #'       list(
 #'          "Fraction1" = c("A", "B", "C", "D", "E"),
@@ -29,10 +29,10 @@
 #'
 #' @export
 
-UpSet_maker <-
+make_UpSet_plot <-
    function(
       UpSetlist,
-      UpSetType = "Protein",
+      plotType = "Protein",
       savePDF = FALSE,
       outputDir = getwd()
    ) {
@@ -46,8 +46,8 @@ UpSet_maker <-
       )
 
       assertthat::assert_that(
-         assertthat::is.string(UpSetType),
-         msg = "UpSetType is not a string"
+         assertthat::is.string(plotType),
+         msg = "plotType is not a string"
       )
 
       assertthat::assert_that(
@@ -71,10 +71,10 @@ UpSet_maker <-
                   UpSetR::fromList(list),
                   sets = rev(names(list)),
                   nintersects = NA,
-                  sets.x.label = glue::glue("Total {UpSetType} IDs"),
+                  sets.x.label = glue::glue("Total {plotType} IDs"),
                   keep.order = T,
                   mainbar.y.label =
-                     glue::glue("Unique {UpSetType} IDs in Intersection"),
+                     glue::glue("Unique {plotType} IDs in Intersection"),
                   text.scale =  c(1.5, 1.2, 1.5, 1.5, 1.2, 0.9),
                   point.size = 2,
                   line.size = 0.75,
@@ -89,13 +89,13 @@ UpSet_maker <-
             dir.create(outputDir)
          }
 
-         message(glue::glue("\nSaving {UpSetType} UpSet plots to outputDir"))
+         message(glue::glue("\nSaving {plotType} UpSet plots to outputDir"))
          purrr::map2(
             names(UpSetlist),
             UpSet,
             ~{
                pdf(
-                  file = glue::glue("{outputDir}/{.x}_UpSet_{UpSetType}.pdf"),
+                  file = glue::glue("{outputDir}/{.x}_UpSet_{plotType}.pdf"),
                   width = 8,
                   height = 5,
                   bg = "transparent",

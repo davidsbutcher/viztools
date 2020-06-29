@@ -33,8 +33,6 @@
 #'
 #' @importFrom magrittr %>%
 #'
-#' @export
-#'
 #' @examples
 #'
 #' library(magrittr)

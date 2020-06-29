@@ -1,16 +1,21 @@
-#' Make an intersect plot for a set of protein/proteoform IDs
+#' Make an intersection degree plot for a set of unique identifiers
 #'
-#' @param IDlist
-#' @param shortNames
-#' @param mediumUsed
-#' @param fracMethod
+#'
+#' @param IDlist A list of vectors. Each list item should be a vector of unique
+#' identifiers corresponding to protein or proteoform IDs, e.g. UniProt accession
+#' numbers or proteoform record numbers from the Consortium for Top-Down Proteomics
+#' proteoform atlas.
+#' @param shortNames Vector of short names
+#' @param mediumUsed Vector of media used
+#' @param fracMethod Vector of frac methods
 #' @param Yrange
+#' Percentage range to use for the Y-axis of the plot. Defaults to `c(0,100)`.
 #' @param plotType
+#' Type of plot to create, typically "Protein" or "Proteoform".This only
+#' affects the Y-axis title and can be any string.
 #'
 #' @return
-#' @export
 #'
-#' @examples
 
 make_intersect_plot <-
    function(

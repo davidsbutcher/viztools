@@ -7,7 +7,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-A variety of visualization and analysis tools for top-down proteomics. Designed by and for DS and not necessarily user-friendly.
+A variety of visualization and analysis tools for top-down proteomics. Designed by and for DSB and not necessarily user-friendly.
 
 ## Installation
 
@@ -20,6 +20,8 @@ remotes::install_github("davidsbutcher/viztools")
 ```
 
 ## Usage
+
+
 
 ## Dependencies
 
