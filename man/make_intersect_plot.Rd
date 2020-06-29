@@ -17,7 +17,7 @@ make_intersect_plot(
 \item{IDlist}{A list of vectors. Each list item should be a vector of unique
 identifiers corresponding to protein or proteoform IDs, e.g. UniProt accession
 numbers or proteoform record numbers from the Consortium for Top-Down Proteomics
-proteoform atlas.}
+proteoform atlas. This function is deprecated in favor of `make_intersection_degree_plot()`.}
 
 \item{shortNames}{Vector of short names}
 

@@ -33,4 +33,14 @@ An intersection degree plot (a ggplot object).
 }
 \examples{
 
+IDlist <-
+  list(
+       "Frac. 1" = c("A", "B", "C", "D"),
+       "Frac. 2" = c("A", "B", "E"),
+       "Frac. 3" = c("A", "E", "F")
+      )
+
+make_intersection_degree_plot(IDlist)
+
+
 }

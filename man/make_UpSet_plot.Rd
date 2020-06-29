@@ -13,7 +13,8 @@ make_UpSet_plot(
 }
 \arguments{
 \item{UpSetlist}{A list of lists of identifiers properly formatted for use by the
-UpSetR::upset() function.}
+UpSetR::upset() function. Alternatively, a data frame with columns named by
+fraction number and containing unique identifiers for proteins/proteoforms.}
 
 \item{plotType}{Type of UpSet plot to make. This only affects the axis
 titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".}
