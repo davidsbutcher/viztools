@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">viztools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
 
@@ -55,6 +55,12 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="articles/getting-started.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="articles/making-upset-plot.html">Making an UpSet Plot</a>
+    </li>
+    <li>
+      <a href="articles/making-int-deg-plot.html">Making an Intersection Degree Plot</a>
     </li>
   </ul>
 </li>
@@ -81,7 +87,7 @@
 <div id="viztools" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#viztools" class="anchor"></a>viztools</h1></div>
-<p>A variety of visualization and analysis tools for top-down proteomics. Designed by and for DSB and not necessarily user-friendly.</p>
+<p>Tools for visualization of results from top-down proteomics studies of prefractionated biological samples. Based on novel visualizations developed for evaluation of the <a href="https://doi.org/10.1021/acs.jproteome.0c00303">PEPPI-MS prefractionation method</a>. Also suitable for visualization of samples fractionated using <a href="https://doi.org/10.1021/ac702197w">GELFrEE</a> or comparison of biological or technical replicates.</p>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
@@ -91,15 +97,62 @@
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
+<div id="formatting-input-spreadsheet-files" class="section level3">
+<h3 class="hasAnchor">
+<a href="#formatting-input-spreadsheet-files" class="anchor"></a>Formatting input spreadsheet files</h3>
+<p>Input files for <code><a href="reference/make_UpSet_plot.html">make_UpSet_plot()</a></code> and <code><a href="reference/make_intersection_degree_plot.html">make_intersection_degree_plot()</a></code> should have column names corresponding to fraction/replicate designations and row values corresponding to unique protein/proteoform identifiers, e.g. <a href="https://www.uniprot.org/">UniProt</a> accession numbers or <a href="https://www.topdownproteomics.org/">CTDP</a> proteoform record numbers.</p>
+<p>An input file for <code><a href="reference/make_heatmap.html">make_heatmap()</a></code> should have a column providing molecular weights and a column providing the fraction/replicate number. Default column names are “mass” and “fraction” but can be specified in the function arguments.</p>
+<p>An input file for <code><a href="reference/waffle_iron.html">waffle_iron()</a></code> should have a column providing the fraction/replicate number and columns providing subcellular localization counts. Column names are used for legend labels, so I recommend naming them “Cytosol”, “Membrane”, etc.</p>
+<p>Example input files for each visualization type can be found in the <code>extdata</code> folder in the package directory.</p>
+</div>
+<div id="loading-and-visualizing-data" class="section level3">
+<h3 class="hasAnchor">
+<a href="#loading-and-visualizing-data" class="anchor"></a>Loading and visualizing data</h3>
+<p>Load an input spreadsheet file as an R object using an appropriate function, e.g. <code><a href="https://readxl.tidyverse.org/reference/read_excel.html">readxl::read_xlsx()</a></code> for XLSX files or <code><a href="https://readr.tidyverse.org/reference/read_delim.html">readr::read_csv()</a></code> for CSV files. Then, pass the object to the appropriate visualization function:</p>
+<div class="sourceCode" id="cb2"><pre class="r"># Read an XLSX
+
+df &lt;- 
+   readxl::read_xlsx(
+      "C:\Users\YourName\Documents\protein_data.xlsx"
+   )
+
+# Read a CSV
+
+df &lt;- 
+   readr::read_csv(
+      "C:\Users\YourName\Documents\protein_data.csv"
+   )
+
+# Use data frame as argument for a visualization function
+
+make_UpSet_plot(df)</pre></div>
+</div>
+<div id="saving-plots" class="section level3">
+<h3 class="hasAnchor">
+<a href="#saving-plots" class="anchor"></a>Saving plots</h3>
+<p>Plots created using <code>viztools</code> can be saved by setting the argument <code>savePDF = TRUE</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="r"><span class="no">UpSetplot</span> <span class="kw">&lt;-</span>
+   <span class="fu"><a href="reference/make_UpSet_plot.html">make_UpSet_plot</a></span>(<span class="no">df</span>, <span class="kw">savePDF</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></div>
+<p>With the exception of UpSet plots, they can also be saved using the <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggplot2::ggsave()</a></code> function:</p>
+<div class="sourceCode" id="cb4"><pre class="r"><span class="fu"><a href="reference/make_heatmap.html">make_heatmap</a></span>(<span class="no">df</span>)
+
+<span class="kw pkg">ggplot2</span><span class="kw ns">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave</a></span>(
+   <span class="st">"heatmap.png"</span>,
+   <span class="kw">dpi</span> <span class="kw">=</span> <span class="fl">300</span>,
+   <span class="kw">height</span> <span class="kw">=</span> <span class="fl">5</span>,
+   <span class="kw">width</span> <span class="kw">=</span> <span class="fl">8</span>
+)</pre></div>
+</div>
 </div>
 <div id="dependencies" class="section level2">
 <h2 class="hasAnchor">
 <a href="#dependencies" class="anchor"></a>Dependencies</h2>
+<p><code>viztools</code> utilizes the package <a href="http://github.com/hms-dbmi/UpSetR"><code>UpSetR</code></a> for generating UpSet plots and <a href="https://github.com/hrbrmstr/waffle/tree/cran"><code>waffle</code></a> for generating Waffle plots. Other visualizations are generated using <code>ggplot2</code>. Additional functions are imported from <code>dplyr</code>, <code>tibble</code>, <code>purrr</code>, <code>glue</code>, <code>tidyr</code>, <code>magrittr</code>, <code>assertthat</code>, and <code>scales</code>.</p>
 </div>
 <div id="license-and-attribution" class="section level2">
 <h2 class="hasAnchor">
 <a href="#license-and-attribution" class="anchor"></a>License and attribution</h2>
-<p>Package developed by David S. Butcher and licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Imported packages are licensed separately.</p>
+<p>Package developed by David S. Butcher and licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Imported packages are licensed separately.</p>
 </div>
 </div>
   </div>

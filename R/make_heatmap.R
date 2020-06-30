@@ -15,7 +15,7 @@
 #' should be in Daltons.
 #' @param savePDF Boolean value (TRUE or FALSE). Should a PDF be saved to the
 #' output directory?
-#' @param outputDir Directory to place output files in.
+#' @param outputDir Directory to place output files into.
 #' @param outputPrefix String to use to prepend heatmap output filenames.
 #' Defaults to date and time.
 #' @param massColname Name of column containing masses. Defaults to

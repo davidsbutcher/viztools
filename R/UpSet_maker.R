@@ -74,7 +74,8 @@ make_UpSet_plot <-
                   as.list(UpSetlist),
                   ~.x[!is.na(.x)]
                )
-            )
+            ) %>%
+            rlang::set_names(1:length(.))
 
       }
 

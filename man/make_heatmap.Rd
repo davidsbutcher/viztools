@@ -34,7 +34,7 @@ should be in Daltons.}
 \item{savePDF}{Boolean value (TRUE or FALSE). Should a PDF be saved to the
 output directory?}
 
-\item{outputDir}{Directory to place output files in.}
+\item{outputDir}{Directory to place output files into.}
 
 \item{outputPrefix}{String to use to prepend heatmap output filenames.
 Defaults to date and time.}

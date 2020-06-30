@@ -1,8 +1,13 @@
 viztools
 ================
 
-A variety of visualization and analysis tools for top-down proteomics.
-Designed by and for DSB and not necessarily user-friendly.
+Tools for visualization of results from top-down proteomics studies of
+prefractionated biological samples. Based on novel visualizations
+developed for evaluation of the [PEPPI-MS prefractionation
+method](https://doi.org/10.1021/acs.jproteome.0c00303). Also suitable
+for visualization of samples fractionated using
+[GELFrEE](https://doi.org/10.1021/ac702197w) or comparison of biological
+or technical replicates.
 
 ## Installation
 
@@ -14,10 +19,90 @@ remotes::install_github("davidsbutcher/viztools")
 
 ## Usage
 
+### Formatting input spreadsheet files
+
+Input files for `make_UpSet_plot()` and
+`make_intersection_degree_plot()` should have column names corresponding
+to fraction/replicate designations and row values corresponding to
+unique protein/proteoform identifiers,
+e.g. [UniProt](https://www.uniprot.org/) accession numbers or
+[CTDP](https://www.topdownproteomics.org/) proteoform record numbers.
+
+An input file for `make_heatmap()` should have a column providing
+molecular weights and a column providing the fraction/replicate number.
+Default column names are “mass” and “fraction” but can be specified in
+the function arguments.
+
+An input file for `waffle_iron()` should have a column providing the
+fraction/replicate number and columns providing subcellular localization
+counts. Column names are used for legend labels, so I recommend naming
+them “Cytosol”, “Membrane”, etc.
+
+Example input files for each visualization type can be found in the
+`extdata` folder in the package directory.
+
+### Loading and visualizing data
+
+Load an input spreadsheet file as an R object using an appropriate
+function, e.g. `readxl::read_xlsx()` for XLSX files or
+`readr::read_csv()` for CSV files. Then, pass the object to the
+appropriate visualization function:
+
+``` r
+# Read an XLSX
+
+df <- 
+   readxl::read_xlsx(
+      "C:\Users\YourName\Documents\protein_data.xlsx"
+   )
+
+# Read a CSV
+
+df <- 
+   readr::read_csv(
+      "C:\Users\YourName\Documents\protein_data.csv"
+   )
+
+# Use data frame as argument for a visualization function
+
+make_UpSet_plot(df)
+```
+
+### Saving plots
+
+Plots created using `viztools` can be saved by setting the argument
+`savePDF = TRUE`:
+
+``` r
+UpSetplot <- 
+   make_UpSet_plot(df, savePDF = TRUE)
+```
+
+With the exception of UpSet plots, they can also be saved using the
+`ggplot2::ggsave()` function:
+
+``` r
+make_heatmap(df)
+
+ggplot2::ggsave(
+   "heatmap.png",
+   dpi = 300,
+   height = 5,
+   width = 8
+)
+```
+
 ## Dependencies
+
+`viztools` utilizes the package
+[`UpSetR`](http://github.com/hms-dbmi/UpSetR) for generating UpSet plots
+and [`waffle`](https://github.com/hrbrmstr/waffle/tree/cran) for
+generating Waffle plots. Other visualizations are generated using
+`ggplot2`. Additional functions are imported from `dplyr`, `tibble`,
+`purrr`, `glue`, `tidyr`, `magrittr`, `assertthat`, and `scales`.
 
 ## License and attribution
 
 Package developed by David S. Butcher and licensed under [CC
-BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Imported
-packages are licensed separately.
+BY 4.0](https://creativecommons.org/licenses/by/4.0/). Imported packages
+are licensed separately.
