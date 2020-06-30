@@ -5,6 +5,10 @@
 #' fraction and subcellular localization.
 #'
 #' @param df A data frame containing columns for fraction and subcellular localization counts.
+#' @param savePDF Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.
+#' @param outputDir Directory to save PDF output. Defaults to R working directory.
+#' @param outputPrefix String to use to prepend heatmap output filenames.
+#' Defaults to date and time.
 #' @param fraction_colname Name of data frame column containing fractions. Defaults to 'fraction'.
 #' @param waffleType Type of Waffle plot to make. This only affects the axis
 #' titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".
@@ -33,6 +37,9 @@
 waffle_iron <-
    function(
       df,
+      savePDF = FALSE,
+      outputDir = getwd(),
+      outputPrefix = format(Sys.time(), "%Y%m%d_%H%M%S"),
       fraction_colname = "fraction",
       waffleType = "Protein"
    ) {
@@ -49,6 +56,22 @@ waffle_iron <-
             df, c(fraction_colname)
          ),
          msg = "df is missing fraction column"
+      )
+
+      assertthat::assert_that(
+         assertthat::is.dir(dirname(outputDir)),
+         msg = "outputDir parent directory is not a recognized path"
+      )
+
+
+      assertthat::assert_that(
+         assertthat::is.string(outputPrefix),
+         msg = "outputPrefix is not a string"
+      )
+
+      assertthat::assert_that(
+         assertthat::is.flag(savePDF),
+         msg = "savePDF should be TRUE or FALSE"
       )
 
       assertthat::assert_that(
@@ -112,7 +135,24 @@ waffle_iron <-
             fill = ggplot2::guide_legend("Localization", reverse = TRUE)
          )
 
-      # Return waffle plot -----------------------------------------------------
+      # Save waffle plot --------------------------------------------------------
+
+      if (savePDF == TRUE) {
+
+         if (dir.exists(outputDir) == FALSE) {
+            dir.create(outputDir)
+         }
+
+         pdf(
+            file = glue::glue("{outputDir}/{outputPrefix}_{waffleType}_waffle_plot.pdf"),
+            width = 8,
+            height = 5,
+            bg = "transparent"
+         )
+         print(output_waffle)
+         dev.off()
+
+      }
 
       return(output_waffle)
 
