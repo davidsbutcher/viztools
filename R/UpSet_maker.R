@@ -5,7 +5,8 @@
 #' UniProt accession numbers or proteoform record numbers.
 #'
 #' @param UpSetlist A list of lists of identifiers properly formatted for use by the
-#' UpSetR::upset() function.
+#' UpSetR::upset() function. Alternatively, a data frame with columns named by
+#' fraction number and containing unique identifiers for proteins/proteoforms.
 #' @param plotType Type of UpSet plot to make. This only affects the axis
 #' titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".
 #' @param savePDF Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.
@@ -41,8 +42,8 @@ make_UpSet_plot <-
       # Assertions --------------------------------------------------------------
 
       assertthat::assert_that(
-         is.list(UpSetlist),
-         msg = "UpSetlist is not a list object"
+         is.list(UpSetlist) | is.data.frame(UpSetlist),
+         msg = "UpSetlist is not a list or data frame object"
       )
 
       assertthat::assert_that(
@@ -59,6 +60,23 @@ make_UpSet_plot <-
          assertthat::is.dir(dirname(outputDir)),
          msg = "outputDir parent directory is not a recognized path"
       )
+
+
+      # Reshape dataframe -------------------------------------------------------
+
+      # If UpSetlist is supplied as a data.frame, reshape it to a list
+
+      if (is.data.frame(UpSetlist) == TRUE) {
+
+         UpSetlist <-
+            list(
+               purrr::map(
+                  as.list(UpSetlist),
+                  ~.x[!is.na(.x)]
+               )
+            )
+
+      }
 
       # Make plots --------------------------------------------------------------
 

@@ -22,6 +22,16 @@
 #'
 #' @examples
 #'
+#' IDlist <-
+#'   list(
+#'        "Frac. 1" = c("A", "B", "C", "D"),
+#'        "Frac. 2" = c("A", "B", "E"),
+#'        "Frac. 3" = c("A", "E", "F")
+#'       )
+#'
+#' make_intersection_degree_plot(IDlist)
+#'
+#'
 
 make_intersection_degree_plot <-
    function(
@@ -35,8 +45,8 @@ make_intersection_degree_plot <-
       # Assertions --------------------------------------------------------------
 
       assertthat::assert_that(
-         is.list(IDlist),
-         msg = "IDlist is not a list object"
+         is.list(IDlist) | is.data.frame(IDlist),
+         msg = "IDlist is not a list or data frame object"
       )
 
       if (is.null(Yrange) == FALSE) {
@@ -87,6 +97,18 @@ make_intersection_degree_plot <-
 
       # Reshape data ------------------------------------------------------------
 
+      # If IDlist is supplied as a data.frame, reshape it to a list
+
+      if (is.data.frame(IDlist) == TRUE) {
+
+         IDlist <-
+            purrr::map(
+               as.list(IDlist),
+               ~.x[!is.na(.x)]
+            )
+
+      }
+
       counts <-
          IDlist %>%
          unlist() %>%
@@ -114,8 +136,9 @@ make_intersection_degree_plot <-
             nudge_y = max(counts$count_frac*5)
          ) +
          ggplot2::scale_x_continuous(
-            breaks =
-               scales::breaks_pretty(n = length(unique(counts$int_degree)))
+            breaks = seq(1:length(unique(counts$int_degree)))
+            # breaks =
+            #    scales::breaks_pretty(n = length(unique(counts$int_degree)))
          ) +
          ggplot2::scale_y_continuous(
             breaks = scales::breaks_pretty(),
