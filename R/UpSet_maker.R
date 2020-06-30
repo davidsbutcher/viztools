@@ -9,8 +9,6 @@
 #' fraction number and containing unique identifiers for proteins/proteoforms.
 #' @param plotType Type of UpSet plot to make. This only affects the axis
 #' titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".
-#' @param savePDF Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.
-#' @param outputDir Directory to save PDF output. Defaults to R working directory.
 #'
 #' @return
 #' An UpSet plot created by UpSetR::upset(). If savePDF is TRUE, a PDF is saved
@@ -33,11 +31,8 @@
 make_UpSet_plot <-
    function(
       UpSetlist,
-      plotType = "Protein",
-      savePDF = FALSE,
-      outputDir = getwd()
+      plotType = "Protein"
    ) {
-
 
       # Assertions --------------------------------------------------------------
 
@@ -50,17 +45,6 @@ make_UpSet_plot <-
          assertthat::is.string(plotType),
          msg = "plotType is not a string"
       )
-
-      assertthat::assert_that(
-         assertthat::is.flag(savePDF),
-         msg = "savePDF should be TRUE or FALSE"
-      )
-
-      assertthat::assert_that(
-         assertthat::is.dir(dirname(outputDir)),
-         msg = "outputDir parent directory is not a recognized path"
-      )
-
 
       # Reshape dataframe -------------------------------------------------------
 
@@ -81,8 +65,8 @@ make_UpSet_plot <-
       # Make plots --------------------------------------------------------------
 
       UpSet <-
-         UpSetlist %>%
          purrr::map(
+            UpSetlist,
             function(list)
             {
                UpSetR::upset(
@@ -101,32 +85,6 @@ make_UpSet_plot <-
             }
          )
 
-      if (savePDF == TRUE) {
-
-         if (dir.exists(outputDir) == FALSE) {
-            dir.create(outputDir)
-         }
-
-         message(glue::glue("\nSaving {plotType} UpSet plots to outputDir"))
-         purrr::map2(
-            names(UpSetlist),
-            UpSet,
-            ~{
-               pdf(
-                  file = glue::glue("{outputDir}/{.x}_UpSet_{plotType}.pdf"),
-                  width = 8,
-                  height = 5,
-                  bg = "transparent",
-                  useDingbats = FALSE
-               )
-               print(.y)
-               dev.off()
-            }
-         )
-
-      }
-
       return(UpSet)
    }
-
 

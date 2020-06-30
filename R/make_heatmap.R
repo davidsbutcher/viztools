@@ -13,11 +13,6 @@
 #' (mass bins on X-axis) or "v" for vertical.
 #' @param binSize Size of the mass bin in Daltons. Masses in the data frame
 #' should be in Daltons.
-#' @param savePDF Boolean value (TRUE or FALSE). Should a PDF be saved to the
-#' output directory?
-#' @param outputDir Directory to place output files in.
-#' @param outputPrefix String to use to prepend heatmap output filenames.
-#' Defaults to date and time.
 #' @param massColname Name of column containing masses. Defaults to
 #' "mass".
 #' @param fractionColname Name of column containing fractions. Defaults to
@@ -60,9 +55,6 @@ make_heatmap <-
       plotType = "Protein",
       orientation = "h",
       binSize = 1000,   # SPECIFY SIZE for heatmap mass bins
-      savePDF = FALSE,
-      outputDir = getwd(),
-      outputPrefix = format(Sys.time(), "%Y%m%d_%H%M%S"),
       massColname = "mass",
       fractionColname = "fraction",
       axisRange = NULL,
@@ -79,21 +71,6 @@ make_heatmap <-
       assertthat::assert_that(
          assertthat::has_name(df, c(massColname, fractionColname)),
          msg = "df missing a needed column"
-      )
-
-      assertthat::assert_that(
-         assertthat::is.dir(dirname(outputDir)),
-         msg = "outputDir parent directory is not a recognized path"
-      )
-
-      assertthat::assert_that(
-         assertthat::is.flag(savePDF),
-         msg = "savePDF should be TRUE or FALSE"
-      )
-
-      assertthat::assert_that(
-         assertthat::is.string(outputPrefix),
-         msg = "outputPrefix is not a string"
       )
 
       assertthat::assert_that(
@@ -285,24 +262,7 @@ make_heatmap <-
 
       }
 
-      # Save heatmaps ---------------------------------------------------
-
-      if (savePDF == TRUE) {
-
-         if (dir.exists(outputDir) == FALSE) {
-            dir.create(outputDir)
-         }
-
-         pdf(
-            file = glue::glue("{outputDir}/{outputPrefix}_{plotType}_heatmap.pdf"),
-            width = 8,
-            height = 5,
-            bg = "transparent"
-         )
-         print(heatmap)
-         dev.off()
-
-      }
+      # Return heatmaps --------------------------------------------------
 
       return(heatmap)
    }
