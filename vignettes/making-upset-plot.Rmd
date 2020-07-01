@@ -16,8 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
-
 ### UpSet plots
 
 A data frame can be passed to to the `make_UpSet_plot()` argument as suggested in the "Loading and visualizing data" section.
