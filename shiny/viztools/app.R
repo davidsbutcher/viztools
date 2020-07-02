@@ -1,5 +1,6 @@
 
 library(shiny)
+library(shinyWidgets)
 library(viztools)
 library(tools)
 library(purrr)
@@ -12,11 +13,102 @@ library(assertthat)
 library(scales)
 library(forcats)
 
+
+parameter_tabs <-
+    tabsetPanel(
+        id = "params",
+        type = "hidden",
+        tabPanel(
+            "upset",
+            selectInput(
+                "upset_name",
+                "UpSet type",
+                choices = c("Protein", "Proteoform")
+            )
+        ),
+        tabPanel(
+            "intdeg",
+            selectInput(
+                "intdeg_name",
+                "Int. Deg. type",
+                choices = c("Protein", "Proteoform")
+            ),
+            sliderInput(
+                "intdeg_yrange",
+                "Y range",
+                0,
+                100,
+                100,
+                step = 1
+            ),
+            textInput(
+                "intdeg_fillcolor",
+                "Fill Color",
+                "#4C4184"
+            )
+        ),
+        tabPanel(
+            "heatmap",
+            selectInput(
+                "heatmap_name",
+                "Heatmap type",
+                choices = c("Protein", "Proteoform")
+            ),
+            selectInput(
+                "heatmap_orientation",
+                "Orientation",
+                choices = c("h", "v")
+            ),
+            sliderInput(
+                "heatmap_binsize",
+                "Bin size",
+                500,
+                10000,
+                1000,
+                step = 500
+            ),
+            textInput(
+                "heatmap_masscol",
+                "Mass column name",
+                value = "mass"
+            ),
+            textInput(
+                "heatmap_fractioncol",
+                "Fraction column name",
+                value = "fraction"
+            ),
+            numericRangeInput(
+                "heatmap_axisrange",
+                "Axis range",
+                NULL
+            ),
+            numericRangeInput(
+                "heatmap_countrange",
+                "Count range",
+                NULL
+            )
+        ),
+        tabPanel(
+            "waffle",
+            selectInput(
+                "waffle_name",
+                "Waffle type",
+                choices = c("Protein", "Proteoform")
+            ),
+            textInput(
+                "waffle_fractioncol",
+                "Fraction column name",
+                value = "fraction"
+            )
+        )
+    )
+
+
 # Define UI
 ui <- fluidPage(
 
     # Application title
-    titlePanel("viztools"),
+    titlePanel("shiny viztools"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
@@ -32,7 +124,7 @@ ui <- fluidPage(
                     ".xlsx"
                 )
             ),
-            radioButtons(
+            selectInput(
                 inputId = "type",
                 "Plot to create:",
                 choices = c(
@@ -42,6 +134,7 @@ ui <- fluidPage(
                     "Waffle" = "waffle"
                 )
             ),
+            parameter_tabs,
             actionButton("startButton", "Go"),
             br(), br(),
             downloadButton("downloadPDF", label = "Download PDF"),
@@ -61,7 +154,14 @@ ui <- fluidPage(
 )
 
 # Define server logic
-server <- function(input, output) {
+server <- function(input, output, session) {
+
+    observeEvent(
+        input$type,
+        {
+            updateTabsetPanel(session, "params", selected = input$type)
+        }
+    )
 
     observeEvent(
         input$startButton,
@@ -93,14 +193,49 @@ server <- function(input, output) {
                     )
 
                 outplot <-
-                    plotter(inputsheet)
+                    switch(
+                        input$type,
+                        upset =
+                            make_UpSet_plot(
+                                inputsheet,
+                                plotType = input$upset_name
+                            ),
+                        intdeg =
+                            make_intersection_degree_plot(
+                                inputsheet,
+                                Yrange = c(0, as.integer(input$intdeg_yrange)),
+                                plotType = input$intdeg_name,
+                                fillColor = input$intdeg_fillcolor
+                            ),
+                        heatmap =
+                            make_heatmap(
+                                inputsheet,
+                                plotType = input$heatmap_name,
+                                orientation = input$heatmap_orientation,
+                                binSize = input$heatmap_binsize,
+                                massColname = input$heatmap_masscol,
+                                fractionColname = input$heatmap_fractioncol,
+                                axisRange = input$heatmap_axisrange,
+                                countRange = input$heatmap_countrange
+                            ),
+                        waffle =
+                            waffle_iron(
+                                inputsheet,
+                                fraction_colname = input$waffle_fractioncol,
+                                waffleType = input$waffle_name
+                            ),
+                        make_UpSet_plot(
+                            inputsheet,
+                            plotType = input$upset_name
+                        )
+                    )
+
             }
 
             output$outputPlot <-
                 renderPlot(
                     outplot
                 )
-
 
             output$downloadPDF <-
                 downloadHandler(
@@ -150,8 +285,10 @@ server <- function(input, output) {
                     }
                 )
 
+
         }
     )
+
 }
 
 # Run the application
