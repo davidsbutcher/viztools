@@ -124,9 +124,12 @@ make_intersection_degree_plot <-
       int_deg_plot <-
          counts %>%
          ggplot2::ggplot(
-            ggplot2::aes(int_degree, count_frac*100, fill = fillColor)
+            ggplot2::aes(int_degree, count_frac*100)
          ) +
-         ggplot2::geom_col(position = "dodge") +
+         ggplot2::geom_col(
+            fill = fillColor,
+            position = "dodge"
+         ) +
          ggplot2::geom_text(
             ggplot2::aes(
                int_degree,

@@ -5,8 +5,8 @@ account: davidbutcher
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2527364
-bundleId: 3341383
+bundleId: 3342078
 url: https://davidbutcher.shinyapps.io/viztools/
-when: 1593647030.77647
+when: 1593666030.39682
 asMultiple: FALSE
 asStatic: FALSE

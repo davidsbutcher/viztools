@@ -4,6 +4,7 @@ library(shinyWidgets)
 library(viztools)
 library(tools)
 library(purrr)
+library(tidyr)
 library(ggplot2)
 library(dplyr)
 library(UpSetR)
@@ -24,6 +25,11 @@ parameter_tabs <-
                 "upset_name",
                 "UpSet type",
                 choices = c("Protein", "Proteoform")
+            ),
+            textInput(
+                "upset_barcolor",
+                "Bar color",
+                "#4C4184"
             )
         ),
         tabPanel(
@@ -43,7 +49,7 @@ parameter_tabs <-
             ),
             textInput(
                 "intdeg_fillcolor",
-                "Fill Color",
+                "Fill color",
                 "#4C4184"
             )
         ),
@@ -63,7 +69,7 @@ parameter_tabs <-
                 "heatmap_binsize",
                 "Bin size",
                 500,
-                10000,
+                5000,
                 1000,
                 step = 500
             ),
@@ -107,39 +113,79 @@ parameter_tabs <-
 # Define UI
 ui <- fluidPage(
 
+    tags$head(
+        tags$style(HTML("hr {border-top: 1px solid #000000;}"))
+    ),
+
     # Application title
     titlePanel("shiny viztools"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
-            fileInput(
-                "file1",
-                "Choose a CSV or XLSX File",
-                accept = c(
-                    "text/csv",
-                    "text/comma-separated-values,text/plain",
-                    ".csv",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    ".xlsx"
+            tabsetPanel(
+                type = "tabs",
+                tabPanel(
+                    "Make Plot",
+                    br(),
+                    fileInput(
+                        "file1",
+                        "Choose a CSV or XLSX File",
+                        accept = c(
+                            "text/csv",
+                            "text/comma-separated-values,text/plain",
+                            ".csv",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            ".xlsx"
+                        )
+                    ),
+                    selectInput(
+                        inputId = "type",
+                        "Plot to create:",
+                        choices = c(
+                            "UpSet" = "upset",
+                            "Int. Degree" = "intdeg",
+                            "Heatmap" = "heatmap",
+                            "Waffle" = "waffle"
+                        )
+                    ),
+                    hr(),
+                    parameter_tabs,
+                    actionButton("startButton", "Go")
+                ),
+                tabPanel(
+                    "Download",
+                    br(),
+                    numericInput(
+                        "download_width",
+                        "Image width",
+                        value = 8,
+                        min = 1,
+                        max = 10,
+                        step = 0.5
+                    ),
+                    numericInput(
+                        "download_height",
+                        "Image height",
+                        value = 5,
+                        min = 1,
+                        max = 16,
+                        step = 0.5
+                    ),
+                    numericInput(
+                        "download_dpi",
+                        "Image DPI (PNG only)",
+                        value = 300,
+                        min = 50,
+                        max = 600,
+                        step = 50
+                    ),
+                    br(),
+                    downloadButton("downloadPDF", label = "Download PDF"),
+                    downloadButton("downloadPNG", label = "Download PNG"),
+                    downloadButton("downloadSVG", label = "Download SVG")
                 )
-            ),
-            selectInput(
-                inputId = "type",
-                "Plot to create:",
-                choices = c(
-                    "UpSet" = "upset",
-                    "Int. Degree" = "intdeg",
-                    "Heatmap" = "heatmap",
-                    "Waffle" = "waffle"
-                )
-            ),
-            parameter_tabs,
-            actionButton("startButton", "Go"),
-            br(), br(),
-            downloadButton("downloadPDF", label = "Download PDF"),
-            downloadButton("downloadPNG", label = "Download PNG"),
-            downloadButton("downloadSVG", label = "Download SVG")
+            )
         ),
         # Show a plot of the generated distribution
         mainPanel(
@@ -166,7 +212,6 @@ server <- function(input, output, session) {
     observeEvent(
         input$startButton,
         {
-
             {
                 inFile <- input$file1
 
@@ -182,51 +227,44 @@ server <- function(input, output, session) {
 
                 }
 
-                plotter <-
-                    switch(
-                        input$type,
-                        upset = make_UpSet_plot,
-                        intdeg = make_intersection_degree_plot,
-                        heatmap = make_heatmap,
-                        waffle = waffle_iron,
-                        make_UpSet_plot
-                    )
-
-                outplot <-
-                    switch(
-                        input$type,
-                        upset =
+                plotExpression <-
+                    expr(
+                        switch(
+                            input$type,
+                            upset =
+                                make_UpSet_plot(
+                                    inputsheet,
+                                    plotType = input$upset_name,
+                                    barColor = input$upset_barcolor
+                                ),
+                            intdeg =
+                                make_intersection_degree_plot(
+                                    inputsheet,
+                                    Yrange = c(0, as.integer(input$intdeg_yrange)),
+                                    plotType = input$intdeg_name,
+                                    fillColor = input$intdeg_fillcolor
+                                ),
+                            heatmap =
+                                make_heatmap(
+                                    inputsheet,
+                                    plotType = input$heatmap_name,
+                                    orientation = input$heatmap_orientation,
+                                    binSize = input$heatmap_binsize,
+                                    massColname = input$heatmap_masscol,
+                                    fractionColname = input$heatmap_fractioncol,
+                                    axisRange = input$heatmap_axisrange,
+                                    countRange = input$heatmap_countrange
+                                ),
+                            waffle =
+                                waffle_iron(
+                                    inputsheet,
+                                    fraction_colname = input$waffle_fractioncol,
+                                    waffleType = input$waffle_name
+                                ),
                             make_UpSet_plot(
                                 inputsheet,
                                 plotType = input$upset_name
-                            ),
-                        intdeg =
-                            make_intersection_degree_plot(
-                                inputsheet,
-                                Yrange = c(0, as.integer(input$intdeg_yrange)),
-                                plotType = input$intdeg_name,
-                                fillColor = input$intdeg_fillcolor
-                            ),
-                        heatmap =
-                            make_heatmap(
-                                inputsheet,
-                                plotType = input$heatmap_name,
-                                orientation = input$heatmap_orientation,
-                                binSize = input$heatmap_binsize,
-                                massColname = input$heatmap_masscol,
-                                fractionColname = input$heatmap_fractioncol,
-                                axisRange = input$heatmap_axisrange,
-                                countRange = input$heatmap_countrange
-                            ),
-                        waffle =
-                            waffle_iron(
-                                inputsheet,
-                                fraction_colname = input$waffle_fractioncol,
-                                waffleType = input$waffle_name
-                            ),
-                        make_UpSet_plot(
-                            inputsheet,
-                            plotType = input$upset_name
+                            )
                         )
                     )
 
@@ -234,8 +272,19 @@ server <- function(input, output, session) {
 
             output$outputPlot <-
                 renderPlot(
-                    outplot
+                    {
+                        validate(
+                            need(
+                                file_ext(input$file1) == "csv" | file_ext(input$file1) == "xlsx",
+                                'Input file should be csv or xlsx'
+                            )
+                        )
+
+                        eval(plotExpression)
+
+                    }
                 )
+
 
             output$downloadPDF <-
                 downloadHandler(
@@ -243,12 +292,12 @@ server <- function(input, output, session) {
                     content = function(file) {
                         pdf(
                             file = file,
-                            width = 8,
-                            height = 5,
+                            width = input$download_width,
+                            height = input$download_height,
                             bg = "transparent",
                             useDingbats = FALSE
                         )
-                        print(outplot)
+                        print(eval(plotExpression))
                         dev.off()
                     }
                 )
@@ -259,13 +308,13 @@ server <- function(input, output, session) {
                     content = function(file) {
                         png(
                             file = file,
-                            width = 8,
-                            height = 5,
+                            width = input$download_width,
+                            height = input$download_height,
                             units = "in",
                             bg = "white",
-                            res = 300
+                            res = input$download_dpi
                         )
-                        print(outplot)
+                        print(eval(plotExpression))
                         dev.off()
                     }
                 )
@@ -276,11 +325,11 @@ server <- function(input, output, session) {
                     content = function(file) {
                         svg(
                             file = file,
-                            width = 8,
-                            height = 5,
+                            width = input$download_width,
+                            height = input$download_height,
                             bg = "transparent"
                         )
-                        print(outplot)
+                        print(eval(plotExpression))
                         dev.off()
                     }
                 )

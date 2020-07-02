@@ -9,6 +9,7 @@
 #' fraction number and containing unique identifiers for proteins/proteoforms.
 #' @param plotType Type of UpSet plot to make. This only affects the axis
 #' titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".
+#' @param barColor Color of bars in the UpSet plot. Defaults to MagLab purple ("#4C4184").
 #' @param savePDF Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.
 #' @param outputDir Directory to save PDF output. Defaults to R working directory.
 #'
@@ -34,6 +35,7 @@ make_UpSet_plot <-
    function(
       UpSetlist,
       plotType = "Protein",
+      barColor = "#4C4184",
       savePDF = FALSE,
       outputDir = getwd()
    ) {
@@ -97,7 +99,9 @@ make_UpSet_plot <-
                   text.scale =  c(1.5, 1.2, 1.5, 1.5, 1.2, 0.9),
                   point.size = 2,
                   line.size = 0.75,
-                  group.by = "degree"
+                  group.by = "degree",
+                  main.bar.color = barColor,
+                  sets.bar.color = barColor
                )
             }
          )
