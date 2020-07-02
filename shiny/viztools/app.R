@@ -156,28 +156,28 @@ ui <- fluidPage(
                 tabPanel(
                     "Download",
                     br(),
-                    numericInput(
+                    sliderInput(
                         "download_width",
                         "Image width",
-                        value = 8,
-                        min = 1,
-                        max = 10,
-                        step = 0.5
-                    ),
-                    numericInput(
-                        "download_height",
-                        "Image height",
-                        value = 5,
                         min = 1,
                         max = 16,
+                        value = 8,
                         step = 0.5
                     ),
-                    numericInput(
+                    sliderInput(
+                        "download_height",
+                        "Image height",
+                        min = 1,
+                        max = 10,
+                        value = 5,
+                        step = 0.5
+                    ),
+                    sliderInput(
                         "download_dpi",
                         "Image DPI (PNG only)",
-                        value = 300,
                         min = 50,
                         max = 600,
+                        value = 300,
                         step = 50
                     ),
                     br(),
