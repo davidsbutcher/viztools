@@ -30,6 +30,7 @@
 #' determines color range automatically using
 #' ggplot2::scale_fill_viridis_c(option = "C", direction = -1). Useful for
 #' creating multiple heatmaps with matching fill color ranges.
+#' @param fontFamily Font family to use for plot. Defaults to "sans".
 #'
 #' @return
 #' A heatmap (a ggplot object)
@@ -66,7 +67,8 @@ make_heatmap <-
       massColname = "mass",
       fractionColname = "fraction",
       axisRange = NULL,
-      countRange = NULL
+      countRange = NULL,
+      fontFamily = "sans"
    ) {
 
       # Assertions --------------------------------------------------------------
@@ -194,7 +196,7 @@ make_heatmap <-
          ) +
          ggplot2::theme_minimal() +
          ggplot2::theme(
-            text = ggplot2::element_text(size=18),
+            text = ggplot2::element_text(size=18, family = fontFamily),
             panel.grid.major = ggplot2::element_line(color = "gray"),
             panel.grid.minor = ggplot2::element_line(color = "lightgray")
          )

@@ -67,7 +67,7 @@ parameter_tabs <-
             ),
             sliderInput(
                 "heatmap_binsize",
-                "Bin size",
+                "Bin size (Da)",
                 500,
                 5000,
                 1000,
@@ -85,7 +85,7 @@ parameter_tabs <-
             ),
             numericRangeInput(
                 "heatmap_axisrange",
-                "Axis range",
+                "Mass axis range (kDa)",
                 NULL
             ),
             numericRangeInput(
@@ -141,24 +141,43 @@ ui <- fluidPage(
                     ),
                     selectInput(
                         inputId = "type",
-                        "Plot to create:",
+                        "Plot to create",
                         choices = c(
                             "UpSet" = "upset",
                             "Int. Degree" = "intdeg",
                             "Heatmap" = "heatmap",
-                            "Waffle" = "waffle"
+                            "Waffle" = "waffle",
+                            style = "material-flat",
+                            color = "default"
                         )
                     ),
                     hr(),
                     parameter_tabs,
-                    actionButton("startButton", "Go")
+                    actionBttn(
+                        "startButton",
+                        "Update Preview"
+                    ),
+                    br(),
+                    br(),
+                    downloadButton("downloadPDF", label = "Download PDF"),
+                    downloadButton("downloadPNG", label = "Download PNG"),
+                    downloadButton("downloadSVG", label = "Download SVG")
                 ),
                 tabPanel(
-                    "Download",
+                    "Image Settings",
                     br(),
+                    selectInput(
+                        "download_font",
+                        "Plot font",
+                        choices = c(
+                            "sans",
+                            "serif",
+                            "mono"
+                        )
+                    ),
                     sliderInput(
                         "download_width",
-                        "Image width",
+                        "Image width (in)",
                         min = 1,
                         max = 16,
                         value = 8,
@@ -166,7 +185,7 @@ ui <- fluidPage(
                     ),
                     sliderInput(
                         "download_height",
-                        "Image height",
+                        "Image height (in)",
                         min = 1,
                         max = 10,
                         value = 5,
@@ -179,20 +198,15 @@ ui <- fluidPage(
                         max = 600,
                         value = 300,
                         step = 50
-                    ),
-                    br(),
-                    downloadButton("downloadPDF", label = "Download PDF"),
-                    downloadButton("downloadPNG", label = "Download PNG"),
-                    downloadButton("downloadSVG", label = "Download SVG")
+                    )
                 )
-            )
+            ),
+            width = 4
         ),
         # Show a plot of the generated distribution
         mainPanel(
             plotOutput(
-                "outputPlot",
-                width = 800,
-                height = 500
+                "outputPlot"
             )
         )
 
@@ -253,7 +267,8 @@ server <- function(input, output, session) {
                                     massColname = input$heatmap_masscol,
                                     fractionColname = input$heatmap_fractioncol,
                                     axisRange = input$heatmap_axisrange,
-                                    countRange = input$heatmap_countrange
+                                    countRange = input$heatmap_countrange,
+                                    fontFamily = input$download_font
                                 ),
                             waffle =
                                 waffle_iron(
@@ -282,7 +297,9 @@ server <- function(input, output, session) {
 
                         eval(plotExpression)
 
-                    }
+                    },
+                    width = 800,
+                    height=800*(input$download_height/input$download_width)
                 )
 
 
