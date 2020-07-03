@@ -21,23 +21,40 @@ parameter_tabs <-
         type = "hidden",
         tabPanel(
             "upset",
-            selectInput(
-                "upset_name",
-                "UpSet type",
-                choices = c("Protein", "Proteoform")
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                selectInput(
+                    "upset_name",
+                    "UpSet type",
+                    choices = c("Protein", "Proteoform")
+                )
             ),
-            textInput(
-                "upset_barcolor",
-                "Bar color",
-                "#4C4184"
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                textInput(
+                    "upset_barcolor",
+                    "Bar color",
+                    "#4C4184"
+                )
             )
         ),
         tabPanel(
             "intdeg",
-            selectInput(
-                "intdeg_name",
-                "Int. Deg. type",
-                choices = c("Protein", "Proteoform")
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                selectInput(
+                    "intdeg_name",
+                    "Int. Deg. type",
+                    choices = c("Protein", "Proteoform")
+                )
+            ),
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                textInput(
+                    "intdeg_fillcolor",
+                    "Fill color",
+                    "#4C4184"
+                )
             ),
             sliderInput(
                 "intdeg_yrange",
@@ -46,24 +63,25 @@ parameter_tabs <-
                 100,
                 100,
                 step = 1
-            ),
-            textInput(
-                "intdeg_fillcolor",
-                "Fill color",
-                "#4C4184"
             )
         ),
         tabPanel(
             "heatmap",
-            selectInput(
-                "heatmap_name",
-                "Heatmap type",
-                choices = c("Protein", "Proteoform")
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                selectInput(
+                    "heatmap_name",
+                    "Heatmap type",
+                    choices = c("Protein", "Proteoform")
+                )
             ),
-            selectInput(
-                "heatmap_orientation",
-                "Orientation",
-                choices = c("h", "v")
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                selectInput(
+                    "heatmap_orientation",
+                    "Orientation",
+                    choices = c("h", "v")
+                )
             ),
             sliderInput(
                 "heatmap_binsize",
@@ -73,15 +91,21 @@ parameter_tabs <-
                 1000,
                 step = 500
             ),
-            textInput(
-                "heatmap_masscol",
-                "Mass column name",
-                value = "mass"
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                textInput(
+                    "heatmap_masscol",
+                    "Mass column name",
+                    value = "mass"
+                )
             ),
-            textInput(
-                "heatmap_fractioncol",
-                "Fraction column name",
-                value = "fraction"
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                textInput(
+                    "heatmap_fractioncol",
+                    "Fraction column name",
+                    value = "fraction"
+                )
             ),
             numericRangeInput(
                 "heatmap_axisrange",
@@ -150,6 +174,21 @@ ui <- fluidPage(
                         )
                     ),
                     hr(),
+                    # div(
+                    #     style="display: inline-block;vertical-align:top; width: 150px;",
+                    #     selectInput(
+                    #         "ddllgra", "Function:",
+                    #         c('mean','median','sd','count','min','max'),
+                    #         selected='mean'
+                    #     )
+                    # ),
+                    # div(
+                    #     style="display: inline-block;vertical-align:top; width: 150px;",
+                    #     textInput(
+                    #         inputId="xlimitsmax", label="x-max",
+                    #         value = 0.5
+                    #     )
+                    # ),
                     parameter_tabs,
                     actionBttn(
                         "startButton",

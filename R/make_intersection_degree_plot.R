@@ -141,7 +141,8 @@ make_intersection_degree_plot <-
             ggplot2::aes(
                int_degree,
                count_frac*100,
-               label = format(count_frac*100, digits = 1, nsmall = 1)
+               label = format(count_frac*100, digits = 1, nsmall = 1),
+               family = fontFamily
             ),
             nudge_y = max(counts$count_frac*5)
          ) +
