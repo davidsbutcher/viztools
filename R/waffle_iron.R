@@ -12,6 +12,7 @@
 #' @param fraction_colname Name of data frame column containing fractions. Defaults to 'fraction'.
 #' @param waffleType Type of Waffle plot to make. This only affects the axis
 #' titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".
+#' @param fontFamily Font family to use for plot. Defaults to "sans".
 #'
 #' @return
 #' A waffle plot (ggplot object)
@@ -41,7 +42,8 @@ waffle_iron <-
       outputDir = getwd(),
       outputPrefix = format(Sys.time(), "%Y%m%d_%H%M%S"),
       fraction_colname = "fraction",
-      waffleType = "Protein"
+      waffleType = "Protein",
+      fontFamily = "sans"
    ) {
 
       # Assertions --------------------------------------------------------------
@@ -79,6 +81,10 @@ waffle_iron <-
          msg = "waffleType is not a string"
       )
 
+      assertthat::assert_that(
+         fontFamily %in% c("sans", "serif", "mono"),
+         msg = "fontFamily should be sans, serif, or mono"
+      )
 
       # Create quosures for tidy evaluation -------------------------------------
 
@@ -129,7 +135,8 @@ waffle_iron <-
          ggplot2::theme_minimal() +
          ggplot2::theme(
             panel.grid =
-               ggplot2::element_blank(), axis.ticks.y = ggplot2::element_line()
+               ggplot2::element_blank(), axis.ticks.y = ggplot2::element_line(),
+            text = ggplot2::element_text(size=12, family = fontFamily),
          ) +
          ggplot2::guides(
             fill = ggplot2::guide_legend("Localization", reverse = TRUE)

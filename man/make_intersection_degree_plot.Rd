@@ -8,7 +8,8 @@ make_intersection_degree_plot(
   IDlist,
   Yrange = c(0, 100),
   plotType = "Protein",
-  fillColor = "#4C4184"
+  fillColor = "#4C4184",
+  fontFamily = "sans"
 )
 }
 \arguments{
@@ -24,6 +25,8 @@ affects the Y-axis title and can be any string.}
 
 \item{fillColor}{Fill color to use for bars on plot. Should be specified as a Hex code.
 Defaults to MagLab violet (#4C4184).}
+
+\item{fontFamily}{Font family to use for plot. Defaults to "sans".}
 }
 \value{
 An intersection degree plot (a ggplot object).

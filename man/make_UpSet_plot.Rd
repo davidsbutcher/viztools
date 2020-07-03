@@ -7,6 +7,7 @@
 make_UpSet_plot(
   UpSetlist,
   plotType = "Protein",
+  barColor = "#4C4184",
   savePDF = FALSE,
   outputDir = getwd()
 )
@@ -18,6 +19,8 @@ fraction number and containing unique identifiers for proteins/proteoforms.}
 
 \item{plotType}{Type of UpSet plot to make. This only affects the axis
 titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".}
+
+\item{barColor}{Color of bars in the UpSet plot. Defaults to MagLab purple ("#4C4184").}
 
 \item{savePDF}{Boolean value, controls whether to save PDF output to outputDir. Defaults to FALSE.}
 

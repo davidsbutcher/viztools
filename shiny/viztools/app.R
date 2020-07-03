@@ -146,9 +146,7 @@ ui <- fluidPage(
                             "UpSet" = "upset",
                             "Int. Degree" = "intdeg",
                             "Heatmap" = "heatmap",
-                            "Waffle" = "waffle",
-                            style = "material-flat",
-                            color = "default"
+                            "Waffle" = "waffle"
                         )
                     ),
                     hr(),

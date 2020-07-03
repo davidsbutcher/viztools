@@ -10,7 +10,8 @@ waffle_iron(
   outputDir = getwd(),
   outputPrefix = format(Sys.time(), "\%Y\%m\%d_\%H\%M\%S"),
   fraction_colname = "fraction",
-  waffleType = "Protein"
+  waffleType = "Protein",
+  fontFamily = "sans"
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ Defaults to date and time.}
 
 \item{waffleType}{Type of Waffle plot to make. This only affects the axis
 titles and filename. Typical values are "Protein" or "Proteoform". Defaults to "Protein".}
+
+\item{fontFamily}{Font family to use for plot. Defaults to "sans".}
 }
 \value{
 A waffle plot (ggplot object)

@@ -15,7 +15,8 @@ make_heatmap(
   massColname = "mass",
   fractionColname = "fraction",
   axisRange = NULL,
-  countRange = NULL
+  countRange = NULL,
+  fontFamily = "sans"
 )
 }
 \arguments{
@@ -54,6 +55,8 @@ use for generating heatmap fill color range. Defaults to NULL, which
 determines color range automatically using
 ggplot2::scale_fill_viridis_c(option = "C", direction = -1). Useful for
 creating multiple heatmaps with matching fill color ranges.}
+
+\item{fontFamily}{Font family to use for plot. Defaults to "sans".}
 }
 \value{
 A heatmap (a ggplot object)

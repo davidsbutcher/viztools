@@ -136,6 +136,11 @@ make_heatmap <-
 
       }
 
+      assertthat::assert_that(
+         fontFamily %in% c("sans", "serif", "mono"),
+         msg = "fontFamily should be sans, serif, or mono"
+      )
+
       # Analyze data ------------------------------------------------------------
 
       # Make bins for binning the data

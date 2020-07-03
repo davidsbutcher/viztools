@@ -14,6 +14,7 @@
 #' @param fillColor
 #' Fill color to use for bars on plot. Should be specified as a Hex code.
 #' Defaults to MagLab violet (#4C4184).
+#' @param fontFamily Font family to use for plot. Defaults to "sans".
 #'
 #' @return
 #' An intersection degree plot (a ggplot object).
@@ -38,7 +39,8 @@ make_intersection_degree_plot <-
       IDlist,
       Yrange = c(0,100),
       plotType = "Protein",
-      fillColor = "#4C4184"
+      fillColor = "#4C4184",
+      fontFamily = "sans"
    ) {
 
 
@@ -73,6 +75,10 @@ make_intersection_degree_plot <-
          msg = "fillColor is not a string"
       )
 
+      assertthat::assert_that(
+         fontFamily %in% c("sans", "serif", "mono"),
+         msg = "fontFamily should be sans, serif, or mono"
+      )
 
       # ggplot Themes -----------------------------------------------------------
 
