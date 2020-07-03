@@ -254,7 +254,8 @@ server <- function(input, output, session) {
                                     inputsheet,
                                     Yrange = c(0, as.integer(input$intdeg_yrange)),
                                     plotType = input$intdeg_name,
-                                    fillColor = input$intdeg_fillcolor
+                                    fillColor = input$intdeg_fillcolor,
+                                    fontFamily = input$download_font
                                 ),
                             heatmap =
                                 make_heatmap(
@@ -272,7 +273,8 @@ server <- function(input, output, session) {
                                 waffle_iron(
                                     inputsheet,
                                     fraction_colname = input$waffle_fractioncol,
-                                    waffleType = input$waffle_name
+                                    waffleType = input$waffle_name,
+                                    fontFamily = input$download_font
                                 ),
                             make_UpSet_plot(
                                 inputsheet,

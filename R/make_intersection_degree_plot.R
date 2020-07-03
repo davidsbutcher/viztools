@@ -96,7 +96,8 @@ make_intersection_degree_plot <-
                text = ggplot2::element_text(
                   size = 16,
                   face = "bold",
-                  color = "black"
+                  color = "black",
+                  family = fontFamily
                )
             )
          )
