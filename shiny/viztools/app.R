@@ -1,6 +1,4 @@
 
-library(shiny)
-library(shinyWidgets)
 library(viztools)
 library(tools)
 library(purrr)
@@ -13,7 +11,8 @@ library(glue)
 library(assertthat)
 library(scales)
 library(forcats)
-
+library(shiny)
+library(shinyWidgets)
 
 parameter_tabs <-
     tabsetPanel(
@@ -91,22 +90,8 @@ parameter_tabs <-
                 1000,
                 step = 500
             ),
-            div(
-                style="display: inline-block;vertical-align:top; width: 150px;",
-                textInput(
-                    "heatmap_masscol",
-                    "Mass column name",
-                    value = "mass"
-                )
-            ),
-            div(
-                style="display: inline-block;vertical-align:top; width: 150px;",
-                textInput(
-                    "heatmap_fractioncol",
-                    "Fraction column name",
-                    value = "fraction"
-                )
-            ),
+            hr(),
+            h5("Leave ranges blank for automatic sizing"),
             numericRangeInput(
                 "heatmap_axisrange",
                 "Mass axis range (kDa)",
@@ -116,6 +101,24 @@ parameter_tabs <-
                 "heatmap_countrange",
                 "Count range",
                 NULL
+            ),
+            hr(),
+            h5("These should match column names in spreadsheet"),
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                textInput(
+                    "heatmap_masscol",
+                    "Mass column",
+                    value = "mass"
+                )
+            ),
+            div(
+                style="display: inline-block;vertical-align:top; width: 150px;",
+                textInput(
+                    "heatmap_fractioncol",
+                    "Fraction column",
+                    value = "fraction"
+                )
             )
         ),
         tabPanel(
@@ -125,6 +128,7 @@ parameter_tabs <-
                 "Waffle type",
                 choices = c("Protein", "Proteoform")
             ),
+            h5("This should match column name in spreadsheet"),
             textInput(
                 "waffle_fractioncol",
                 "Fraction column name",
@@ -135,10 +139,10 @@ parameter_tabs <-
 
 
 # Define UI
-ui <- fluidPage(
+ui <- fixedPage(
 
     tags$head(
-        tags$style(HTML("hr {border-top: 1px solid #000000;}"))
+        tags$style(HTML("hr {border-top: 1px solid #A9A9A9;}"))
     ),
 
     # Application title
@@ -154,7 +158,7 @@ ui <- fluidPage(
                     br(),
                     fileInput(
                         "file1",
-                        "Choose a CSV or XLSX File",
+                        "Upload a CSV or XLSX file",
                         accept = c(
                             "text/csv",
                             "text/comma-separated-values,text/plain",
@@ -165,7 +169,7 @@ ui <- fluidPage(
                     ),
                     selectInput(
                         inputId = "type",
-                        "Plot to create",
+                        "Plot type",
                         choices = c(
                             "UpSet" = "upset",
                             "Int. Degree" = "intdeg",
@@ -190,6 +194,7 @@ ui <- fluidPage(
                     #     )
                     # ),
                     parameter_tabs,
+                    hr(),
                     actionBttn(
                         "startButton",
                         "Update Preview"
@@ -197,8 +202,8 @@ ui <- fluidPage(
                     br(),
                     br(),
                     downloadButton("downloadPDF", label = "Download PDF"),
-                    downloadButton("downloadPNG", label = "Download PNG"),
-                    downloadButton("downloadSVG", label = "Download SVG")
+                    downloadButton("downloadSVG", label = "Download SVG"),
+                    downloadButton("downloadPNG", label = "Download PNG")
                 ),
                 tabPanel(
                     "Image Settings",
@@ -236,12 +241,37 @@ ui <- fluidPage(
                         value = 300,
                         step = 50
                     )
+                ),
+                tabPanel(
+                    "About",
+                    br(),
+                    "viztools is developed by ",
+                    a('David S. Butcher', href = 'https://www.davidsbutcher.com'),
+                    " and provided as a service by the biological applications subgroup of the ICR group at the ",
+                    a('National High Magnetic Field Laboratory.', href='https://www.nationalmaglab.org'),
+                    br(),
+                    br(),
+                    img(src = "maglab_brandname_download.jpg", width = "150px"),
+                    img(src = "FT-ICR-logo.png", width = "50px"),
+                    br(),
+                    br(),
+                    icon('readme', 'fa-3x'),
+                    a('Read the Shiny app vignette', href = 'https://davidsbutcher.github.io/viztools/'),
+                    br(), br(),
+                    icon('github', 'fa-3x'),
+                    a('View source code on Github', href = "https://github.com/davidsbutcher/viztools"),
+                    br(), br(),
+                    icon('envelope', 'fa-3x'),
+                    a('Contact the author', href = "mailto:dbutcher@magnet.fsu.edu")
                 )
             ),
             width = 4
         ),
         # Show a plot of the generated distribution
         mainPanel(
+            tableOutput(
+                "inputSheet"
+            ),
             plotOutput(
                 "outputPlot"
             )
@@ -253,17 +283,79 @@ ui <- fluidPage(
 # Define server logic
 server <- function(input, output, session) {
 
+    # Isolate input params so plot is not created until startButton is clicked
+
+    isolate(input$file1)
+    isolate(input$download_font)
+
+    # Create expression used to generate plots on-demand
+
+    plotExpression <-
+        expr(
+            isolate(
+                switch(
+                    input$type,
+                    upset =
+                        make_UpSet_plot(
+                            inputsheet,
+                            plotType = input$upset_name,
+                            barColor = input$upset_barcolor
+                        ),
+                    intdeg =
+                        make_intersection_degree_plot(
+                            inputsheet,
+                            Yrange = c(0, as.integer(input$intdeg_yrange)),
+                            plotType = input$intdeg_name,
+                            fillColor = input$intdeg_fillcolor,
+                            fontFamily = input$download_font
+                        ),
+                    heatmap =
+                        make_heatmap(
+                            inputsheet,
+                            plotType = input$heatmap_name,
+                            orientation = input$heatmap_orientation,
+                            binSize = input$heatmap_binsize,
+                            massColname = input$heatmap_masscol,
+                            fractionColname = input$heatmap_fractioncol,
+                            axisRange = input$heatmap_axisrange,
+                            countRange = input$heatmap_countrange,
+                            fontFamily = input$download_font
+                        ),
+                    waffle =
+                        waffle_iron(
+                            inputsheet,
+                            fraction_colname = input$waffle_fractioncol,
+                            waffleType = input$waffle_name,
+                            fontFamily = input$download_font
+                        ),
+                    make_UpSet_plot(
+                        inputsheet,
+                        plotType = input$upset_name
+                    )
+                )
+            )
+        )
+
     observeEvent(
         input$type,
         {
             updateTabsetPanel(session, "params", selected = input$type)
+
         }
     )
 
     observeEvent(
-        input$startButton,
+        input$file1,
         {
             {
+
+                validate(
+                    need(
+                        is.null(input$file1) == FALSE,
+                        'No input file'
+                    )
+                )
+
                 inFile <- input$file1
 
                 if (file_ext(inFile$datapath) == "csv") {
@@ -278,49 +370,42 @@ server <- function(input, output, session) {
 
                 }
 
-                plotExpression <-
-                    expr(
-                        switch(
-                            input$type,
-                            upset =
-                                make_UpSet_plot(
-                                    inputsheet,
-                                    plotType = input$upset_name,
-                                    barColor = input$upset_barcolor
-                                ),
-                            intdeg =
-                                make_intersection_degree_plot(
-                                    inputsheet,
-                                    Yrange = c(0, as.integer(input$intdeg_yrange)),
-                                    plotType = input$intdeg_name,
-                                    fillColor = input$intdeg_fillcolor,
-                                    fontFamily = input$download_font
-                                ),
-                            heatmap =
-                                make_heatmap(
-                                    inputsheet,
-                                    plotType = input$heatmap_name,
-                                    orientation = input$heatmap_orientation,
-                                    binSize = input$heatmap_binsize,
-                                    massColname = input$heatmap_masscol,
-                                    fractionColname = input$heatmap_fractioncol,
-                                    axisRange = input$heatmap_axisrange,
-                                    countRange = input$heatmap_countrange,
-                                    fontFamily = input$download_font
-                                ),
-                            waffle =
-                                waffle_iron(
-                                    inputsheet,
-                                    fraction_colname = input$waffle_fractioncol,
-                                    waffleType = input$waffle_name,
-                                    fontFamily = input$download_font
-                                ),
-                            make_UpSet_plot(
-                                inputsheet,
-                                plotType = input$upset_name
-                            )
-                        )
+            }
+
+            output$inputSheet <-
+                renderTable(
+                    {
+                        head(inputsheet)
+                    }
+                )
+        }
+    )
+
+    observeEvent(
+        input$startButton,
+        {
+            {
+
+                validate(
+                    need(
+                        is.null(input$file1) == FALSE,
+                        'No input file'
                     )
+                )
+
+                inFile <- input$file1
+
+                if (file_ext(inFile$datapath) == "csv") {
+
+                    inputsheet <-
+                        readr::read_csv(inFile$datapath)
+
+                } else if (file_ext(inFile$datapath) == "xlsx") {
+
+                    inputsheet <-
+                        readxl::read_xlsx(inFile$datapath)
+
+                }
 
             }
 
@@ -340,7 +425,6 @@ server <- function(input, output, session) {
                     width = 800,
                     height=800*(input$download_height/input$download_width)
                 )
-
 
             output$downloadPDF <-
                 downloadHandler(
