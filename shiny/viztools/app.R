@@ -272,6 +272,7 @@ ui <- fixedPage(
             tableOutput(
                 "inputSheet"
             ),
+            textOutput("truncnote"),
             plotOutput(
                 "outputPlot"
             )
@@ -347,35 +348,34 @@ server <- function(input, output, session) {
     observeEvent(
         input$file1,
         {
-            {
-
-                validate(
-                    need(
-                        is.null(input$file1) == FALSE,
-                        'No input file'
-                    )
+            validate(
+                need(
+                    is.null(input$file1) == FALSE,
+                    'No input file'
                 )
+            )
 
-                inFile <- input$file1
+            inFile <- input$file1
 
-                if (file_ext(inFile$datapath) == "csv") {
+            if (file_ext(inFile$datapath) == "csv") {
 
-                    inputsheet <-
-                        readr::read_csv(inFile$datapath)
+                inputsheet <-
+                    readr::read_csv(inFile$datapath)
 
-                } else if (file_ext(inFile$datapath) == "xlsx") {
+            } else if (file_ext(inFile$datapath) == "xlsx") {
 
-                    inputsheet <-
-                        readxl::read_xlsx(inFile$datapath)
-
-                }
+                inputsheet <-
+                    readxl::read_xlsx(inFile$datapath)
 
             }
+
+            output$truncnote <-
+                if(nrow(inputsheet) > 6 | length(inputsheet) > 10) renderText("(input spreadsheet truncated)")
 
             output$inputSheet <-
                 renderTable(
                     {
-                        head(inputsheet)
+                        head(inputsheet[1:10])
                     }
                 )
         }
