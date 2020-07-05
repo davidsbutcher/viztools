@@ -152,6 +152,7 @@ ui <- fixedPage(
     sidebarLayout(
         sidebarPanel(
             tabsetPanel(
+                id = "main",
                 type = "tabs",
                 tabPanel(
                     "Make Plot",
@@ -208,31 +209,41 @@ ui <- fixedPage(
                 tabPanel(
                     "Image Settings",
                     br(),
-                    selectInput(
-                        "download_font",
-                        "Plot font",
-                        choices = c(
-                            "sans",
-                            "serif",
-                            "mono"
+                    div(
+                        style="display: inline-block;vertical-align:top; width: 150px;",
+                        selectInput(
+                            "download_font",
+                            "Plot font",
+                            choices = c(
+                                "sans",
+                                "serif",
+                                "mono"
+                            )
                         )
                     ),
-                    sliderInput(
+                    div(
+                        style="display: inline-block;vertical-align:top; width: 150px;",
+                        radioGroupButtons(
+                            inputId = "download_unit",
+                            label = "Size unit",
+                            choices =
+                                c("cm", "inch"),
+                            justified = TRUE
+                        )
+                    ),
+                    numericInput(
                         "download_width",
-                        "Image width (in)",
-                        min = 1,
-                        max = 16,
-                        value = 8,
+                        "Image width",
+                        value = 20,
                         step = 0.5
                     ),
-                    sliderInput(
+                    numericInput(
                         "download_height",
-                        "Image height (in)",
-                        min = 1,
-                        max = 10,
-                        value = 5,
+                        "Image height",
+                        value = 12.5,
                         step = 0.5
-                    ),
+                    )
+                    ,
                     sliderInput(
                         "download_dpi",
                         "Image DPI (PNG only)",
@@ -245,24 +256,7 @@ ui <- fixedPage(
                 tabPanel(
                     "About",
                     br(),
-                    "viztools is developed by ",
-                    a('David S. Butcher', href = 'https://www.davidsbutcher.com'),
-                    " and provided as a service by the biological applications subgroup of the ICR group at the ",
-                    a('National High Magnetic Field Laboratory.', href='https://www.nationalmaglab.org'),
-                    br(),
-                    br(),
-                    img(src = "maglab_brandname_download.jpg", width = "150px"),
-                    img(src = "FT-ICR-logo.png", width = "50px"),
-                    br(),
-                    br(),
-                    icon('readme', 'fa-3x'),
-                    a('Read the Shiny app vignette', href = 'https://davidsbutcher.github.io/viztools/'),
-                    br(), br(),
-                    icon('github', 'fa-3x'),
-                    a('View source code on Github', href = "https://github.com/davidsbutcher/viztools"),
-                    br(), br(),
-                    icon('envelope', 'fa-3x'),
-                    a('Contact the author', href = "mailto:dbutcher@magnet.fsu.edu")
+                    includeMarkdown("about.md")
                 )
             ),
             width = 4
@@ -341,7 +335,6 @@ server <- function(input, output, session) {
         input$type,
         {
             updateTabsetPanel(session, "params", selected = input$type)
-
         }
     )
 
@@ -375,7 +368,7 @@ server <- function(input, output, session) {
             output$inputSheet <-
                 renderTable(
                     {
-                        head(inputsheet[1:10])
+                        head(select(inputsheet, any_of(1:10)))
                     }
                 )
         }
@@ -432,8 +425,18 @@ server <- function(input, output, session) {
                     content = function(file) {
                         pdf(
                             file = file,
-                            width = input$download_width,
-                            height = input$download_height,
+                            width =
+                                switch(
+                                    input$download_unit,
+                                    inch = input$download_width,
+                                    cm = input$download_width/2.54
+                                ),
+                            height =
+                                switch(
+                                    input$download_unit,
+                                    inch = input$download_height,
+                                    cm = input$download_height/2.54
+                                ),
                             bg = "transparent",
                             useDingbats = FALSE
                         )
@@ -448,8 +451,18 @@ server <- function(input, output, session) {
                     content = function(file) {
                         png(
                             file = file,
-                            width = input$download_width,
-                            height = input$download_height,
+                            width =
+                                switch(
+                                    input$download_unit,
+                                    inch = input$download_width,
+                                    cm = input$download_width/2.54
+                                ),
+                            height =
+                                switch(
+                                    input$download_unit,
+                                    inch = input$download_height,
+                                    cm = input$download_height/2.54
+                                ),
                             units = "in",
                             bg = "white",
                             res = input$download_dpi
@@ -465,8 +478,18 @@ server <- function(input, output, session) {
                     content = function(file) {
                         svg(
                             file = file,
-                            width = input$download_width,
-                            height = input$download_height,
+                            width =
+                                switch(
+                                    input$download_unit,
+                                    inch = input$download_width,
+                                    cm = input$download_width/2.54
+                                ),
+                            height =
+                                switch(
+                                    input$download_unit,
+                                    inch = input$download_height,
+                                    cm = input$download_height/2.54
+                                ),
                             bg = "transparent"
                         )
                         print(eval(plotExpression))
