@@ -70,3 +70,5 @@ inst/extdata/UpSet_and_IntDeg_wideandshort_example_input .xlsx
 inst/extdata/hit_report_test.xlsx
 
 inst/extdata/proteoform_report_test.xlsx
+
+shiny/viztools/rsconnect/shinyapps.io/davidbutcher/viztools.dcf

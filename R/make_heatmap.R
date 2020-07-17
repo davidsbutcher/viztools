@@ -250,7 +250,7 @@ make_heatmap <-
             ) +
             ggplot2::theme_minimal() +
             ggplot2::theme(
-               text = ggplot2::element_text(size=18),
+               text = ggplot2::element_text(size=18, family = fontFamily),
                panel.grid.major = ggplot2::element_line(color = "gray"),
                panel.grid.minor = ggplot2::element_line(color = "lightgray")
             )

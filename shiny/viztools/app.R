@@ -10,9 +10,12 @@ library(waffle)
 library(glue)
 library(assertthat)
 library(scales)
+library(markdown)
 library(forcats)
 library(shiny)
 library(shinyWidgets)
+
+# Type-dependent parameters ------------------------------------------
 
 parameter_tabs <-
     tabsetPanel(
@@ -138,144 +141,133 @@ parameter_tabs <-
     )
 
 
-# Define UI
-ui <- fixedPage(
 
-    tags$head(
-        tags$style(HTML("hr {border-top: 1px solid #A9A9A9;}"))
-    ),
+# UI elements -------------------------------------------------------------
 
-    # Application title
-    titlePanel("shiny viztools"),
+ui <-
+    fixedPage(
 
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            tabsetPanel(
-                id = "main",
-                type = "tabs",
-                tabPanel(
-                    "Make Plot",
-                    br(),
-                    fileInput(
-                        "file1",
-                        "Upload a CSV or XLSX file",
-                        accept = c(
-                            "text/csv",
-                            "text/comma-separated-values,text/plain",
-                            ".csv",
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            ".xlsx"
-                        )
-                    ),
-                    selectInput(
-                        inputId = "type",
-                        "Plot type",
-                        choices = c(
-                            "UpSet" = "upset",
-                            "Int. Degree" = "intdeg",
-                            "Heatmap" = "heatmap",
-                            "Waffle" = "waffle"
-                        )
-                    ),
-                    hr(),
-                    # div(
-                    #     style="display: inline-block;vertical-align:top; width: 150px;",
-                    #     selectInput(
-                    #         "ddllgra", "Function:",
-                    #         c('mean','median','sd','count','min','max'),
-                    #         selected='mean'
-                    #     )
-                    # ),
-                    # div(
-                    #     style="display: inline-block;vertical-align:top; width: 150px;",
-                    #     textInput(
-                    #         inputId="xlimitsmax", label="x-max",
-                    #         value = 0.5
-                    #     )
-                    # ),
-                    parameter_tabs,
-                    hr(),
-                    actionBttn(
-                        "startButton",
-                        "Update Preview"
-                    ),
-                    br(),
-                    br(),
-                    downloadButton("downloadPDF", label = "Download PDF"),
-                    downloadButton("downloadSVG", label = "Download SVG"),
-                    downloadButton("downloadPNG", label = "Download PNG")
-                ),
-                tabPanel(
-                    "Image Settings",
-                    br(),
-                    div(
-                        style="display: inline-block;vertical-align:top; width: 150px;",
-                        selectInput(
-                            "download_font",
-                            "Plot font",
-                            choices = c(
-                                "sans",
-                                "serif",
-                                "mono"
-                            )
-                        )
-                    ),
-                    div(
-                        style="display: inline-block;vertical-align:top; width: 150px;",
-                        radioGroupButtons(
-                            inputId = "download_unit",
-                            label = "Size unit",
-                            choices =
-                                c("cm", "inch"),
-                            justified = TRUE
-                        )
-                    ),
-                    numericInput(
-                        "download_width",
-                        "Image width",
-                        value = 20,
-                        step = 0.5
-                    ),
-                    numericInput(
-                        "download_height",
-                        "Image height",
-                        value = 12.5,
-                        step = 0.5
-                    )
-                    ,
-                    sliderInput(
-                        "download_dpi",
-                        "Image DPI (PNG only)",
-                        min = 50,
-                        max = 600,
-                        value = 300,
-                        step = 50
-                    )
-                ),
-                tabPanel(
-                    "About",
-                    br(),
-                    includeMarkdown("about.md")
-                )
-            ),
-            width = 4
+        tags$head(
+            tags$style(HTML("hr {border-top: 1px solid #A9A9A9;}"))
         ),
-        # Show a plot of the generated distribution
-        mainPanel(
-            tableOutput(
-                "inputSheet"
+
+        # Application title
+        titlePanel("shiny viztools"),
+
+        # Sidebar with a slider input for number of bins
+        sidebarLayout(
+            sidebarPanel(
+                tabsetPanel(
+                    id = "main",
+                    type = "tabs",
+                    tabPanel(
+                        "Make Plot",
+                        br(),
+                        fileInput(
+                            "file1",
+                            "Upload a CSV or XLSX file",
+                            accept = c(
+                                "text/csv",
+                                "text/comma-separated-values,text/plain",
+                                ".csv",
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                ".xlsx"
+                            )
+                        ),
+                        selectInput(
+                            inputId = "type",
+                            "Plot type",
+                            choices = c(
+                                "UpSet" = "upset",
+                                "Int. Degree" = "intdeg",
+                                "Heatmap" = "heatmap",
+                                "Waffle" = "waffle"
+                            )
+                        ),
+                        hr(),
+                        parameter_tabs,
+                        hr(),
+                        actionBttn(
+                            "startButton",
+                            "Update Preview"
+                        ),
+                        br(),
+                        br(),
+                        downloadButton("downloadPDF", label = "Download PDF"),
+                        downloadButton("downloadSVG", label = "Download SVG"),
+                        downloadButton("downloadPNG", label = "Download PNG")
+                    ),
+                    tabPanel(
+                        "Image Settings",
+                        br(),
+                        div(
+                            style="display: inline-block;vertical-align:top; width: 150px;",
+                            selectInput(
+                                "download_font",
+                                "Plot font",
+                                choices = c(
+                                    "sans",
+                                    "serif",
+                                    "mono"
+                                )
+                            )
+                        ),
+                        div(
+                            style="display: inline-block;vertical-align:top; width: 150px;",
+                            radioGroupButtons(
+                                inputId = "download_unit",
+                                label = "Size unit",
+                                choices =
+                                    c("cm", "inch"),
+                                justified = TRUE
+                            )
+                        ),
+                        numericInput(
+                            "download_width",
+                            "Image width",
+                            value = 20,
+                            step = 0.5
+                        ),
+                        numericInput(
+                            "download_height",
+                            "Image height",
+                            value = 12.5,
+                            step = 0.5
+                        )
+                        ,
+                        sliderInput(
+                            "download_dpi",
+                            "Image DPI (PNG only)",
+                            min = 50,
+                            max = 600,
+                            value = 300,
+                            step = 50
+                        )
+                    ),
+                    tabPanel(
+                        "About",
+                        br(),
+                        includeMarkdown("about.md")
+                    )
+                ),
+                width = 4
             ),
-            textOutput("truncnote"),
-            plotOutput(
-                "outputPlot"
+            # Show a plot of the generated distribution
+            mainPanel(
+                tableOutput(
+                    "inputSheet"
+                ),
+                textOutput("truncnote"),
+                plotOutput(
+                    "outputPlot"
+                )
             )
+
         )
-
     )
-)
 
-# Define server logic
+# Server function ---------------------------------------------------------
+
 server <- function(input, output, session) {
 
     # Isolate input params so plot is not created until startButton is clicked
@@ -421,7 +413,9 @@ server <- function(input, output, session) {
 
             output$downloadPDF <-
                 downloadHandler(
-                    filename = "plot.pdf",
+                    filename = glue::glue(
+                        "{format(Sys.time(), '%Y%m%d_%H%M%S')}_{input$type}_plot.pdf"
+                    ),
                     content = function(file) {
                         pdf(
                             file = file,
@@ -447,7 +441,9 @@ server <- function(input, output, session) {
 
             output$downloadPNG <-
                 downloadHandler(
-                    filename = "plot.png",
+                    filename = glue::glue(
+                        "{format(Sys.time(), '%Y%m%d_%H%M%S')}_{input$type}_plot.png"
+                    ),
                     content = function(file) {
                         png(
                             file = file,
@@ -474,7 +470,9 @@ server <- function(input, output, session) {
 
             output$downloadSVG <-
                 downloadHandler(
-                    filename = "plot.svg",
+                    filename = glue::glue(
+                        "{format(Sys.time(), '%Y%m%d_%H%M%S')}_{input$type}_plot.svg"
+                    ),
                     content = function(file) {
                         svg(
                             file = file,

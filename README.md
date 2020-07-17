@@ -7,8 +7,11 @@ novel visualizations developed for evaluation of the [PEPPI-MS
 prefractionation method](https://doi.org/10.1021/acs.jproteome.0c00303).
 Also suitable for visualization of samples fractionated using
 [GELFrEE](https://doi.org/10.1021/ac702197w) or comparison of biological
-or technical replicates. The package is based around the following
-visualizations:
+or technical replicates.
+
+A [Shiny web application](https://davidbutcher.shinyapps.io/viztools/)
+for these tools is also available. See the [Shiny app section](#shiny)
+below for more information.
 
 ### UpSet plots
 
@@ -34,14 +37,14 @@ Used to visualize the distribution of proteoform identifications by
 molecular weight. Can be made in a vertical orientation for comparison
 to SDS-PAGE gels:
 
-<img src="C:/Users/ranar/Documents/R/win-library/3.6/viztools/extdata/heatmap_example.jpg" width="1717" />
+![](C:/Users/ranar/Documents/R/win-library/4.0/viztools/extdata/heatmap_example.jpg)<!-- -->
 
 ### Waffle plots
 
 Used for visualizing quantity and subcellular localization of proteoform
 identifications by fraction.
 
-<img src="C:/Users/ranar/Documents/R/win-library/3.6/viztools/extdata/waffle_example.png" width="5577" />
+![](C:/Users/ranar/Documents/R/win-library/4.0/viztools/extdata/waffle_example.png)<!-- -->
 
 ## Installation
 
@@ -124,6 +127,12 @@ ggplot2::ggsave(
    width = 8
 )
 ```
+
+## Shiny
+
+A [GUI web application](http://davidsbutcher.shinyapps.io/viztools/) is
+currently hosted at shinyapps.io. Input spreadsheet files should be
+formatted as [specified above](#formatting-input-spreadsheet-files).
 
 ## Dependencies
 
