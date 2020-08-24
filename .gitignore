@@ -72,3 +72,5 @@ inst/extdata/hit_report_test.xlsx
 inst/extdata/proteoform_report_test.xlsx
 
 shiny/viztools/rsconnect/shinyapps.io/davidbutcher/viztools.dcf
+
+inst/shiny/rsconnect/shinyapps.io/davidbutcher/viztools.dcf
