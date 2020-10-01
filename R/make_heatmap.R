@@ -30,6 +30,8 @@
 #' determines color range automatically using
 #' ggplot2::scale_fill_viridis_c(option = "C", direction = -1). Useful for
 #' creating multiple heatmaps with matching fill color ranges.
+#' @param fillScale Character vector of length 1 indicating which viridis
+#' palette to use. Acceptable values are A, B, C, D and E.
 #' @param fontFamily Font family to use for plot. Defaults to "sans".
 #'
 #' @return
@@ -68,6 +70,7 @@ make_heatmap <-
       fractionColname = "fraction",
       axisRange = NULL,
       countRange = NULL,
+      fillScale = "C",
       fontFamily = "sans"
    ) {
 
@@ -137,6 +140,11 @@ make_heatmap <-
       }
 
       assertthat::assert_that(
+         fillScale %in% c("A", "B", "C", "D", "E"),
+         msg = "fillScale must be A, B, C, D or E"
+      )
+
+      assertthat::assert_that(
          fontFamily %in% c("sans", "serif", "mono"),
          msg = "fontFamily should be sans, serif, or mono"
       )
@@ -176,48 +184,48 @@ make_heatmap <-
 
       if (orientation == "h") {
 
-      heatmap <-
-         heatmap_data %>%
-         ggplot2::ggplot(
-            ggplot2::aes(
-               mass_bin/1000, !!fractionColname_sym,
-               fill = !!fillname_sym
-            )
-         ) +
-         ggplot2::geom_tile(
-            position = ggplot2::position_nudge(x = (binSize/2)/1000)
-            ) +
-         ggplot2::scale_y_discrete(
-            limits = rev(
-               levels(heatmap_data %>% dplyr::pull(!!fractionColname))
-            )
-         ) +
-         ggplot2::scale_x_continuous(
-            breaks = scales::pretty_breaks()
-         ) +
-         ggplot2::labs(
-            x = "Mass Bin (kDa)",
-            y = "Fraction"
-         ) +
-         ggplot2::theme_minimal() +
-         ggplot2::theme(
-            text = ggplot2::element_text(size=18, family = fontFamily),
-            panel.grid.major = ggplot2::element_line(color = "gray"),
-            panel.grid.minor = ggplot2::element_line(color = "lightgray")
-         )
-
-      # Add axisRange to plot
-
-      if (is.null(axisRange) == FALSE) {
-
          heatmap <-
-            heatmap +
+            heatmap_data %>%
+            ggplot2::ggplot(
+               ggplot2::aes(
+                  mass_bin/1000, !!fractionColname_sym,
+                  fill = !!fillname_sym
+               )
+            ) +
+            ggplot2::geom_tile(
+               position = ggplot2::position_nudge(x = (binSize/2)/1000)
+            ) +
+            ggplot2::scale_y_discrete(
+               limits = rev(
+                  levels(heatmap_data %>% dplyr::pull(!!fractionColname))
+               )
+            ) +
             ggplot2::scale_x_continuous(
-               breaks = scales::pretty_breaks(),
-               limits = axisRange,
-               expand = c(0,0)
+               breaks = scales::pretty_breaks()
+            ) +
+            ggplot2::labs(
+               x = "Mass Bin (kDa)",
+               y = "Fraction"
+            ) +
+            ggplot2::theme_minimal() +
+            ggplot2::theme(
+               text = ggplot2::element_text(size=18, family = fontFamily),
+               panel.grid.major = ggplot2::element_line(color = "gray"),
+               panel.grid.minor = ggplot2::element_line(color = "lightgray")
             )
-      }
+
+         # Add axisRange to plot
+
+         if (is.null(axisRange) == FALSE) {
+
+            heatmap <-
+               heatmap +
+               ggplot2::scale_x_continuous(
+                  breaks = scales::pretty_breaks(),
+                  limits = axisRange,
+                  expand = c(0,0)
+               )
+         }
 
       }
 
@@ -276,19 +284,70 @@ make_heatmap <-
 
          heatmap <-
             heatmap +
-            ggplot2::scale_fill_viridis_c(option = "C", direction = -1)
+            ggplot2::scale_fill_viridis_c(option = fillScale, direction = -1)
 
       } else {
 
-         heatmap <-
-            heatmap +
-            ggplot2::scale_fill_gradient2(
-               low = "#F0F921FF",
-               mid = "#CC4678FF",
-               high = "#0D0887FF",
-               midpoint = mean(countRange),
-               limits = c(floor(countRange[[1]]), ceiling(countRange[[2]]))
-            )
+         if (fillScale == "A") {
+
+            heatmap <-
+               heatmap +
+               ggplot2::scale_fill_gradient2(
+                  low = "#FCFDBFFF",
+                  mid = "#B63679FF",
+                  high = "#000004FF",
+                  midpoint = mean(countRange),
+                  limits = c(floor(countRange[[1]]), ceiling(countRange[[2]]))
+               )
+
+         } else if (fillScale == "B") {
+
+            heatmap <-
+               heatmap +
+               ggplot2::scale_fill_gradient2(
+                  low = "#FCFFA4FF",
+                  mid = "#BB3754FF",
+                  high = "#000004FF",
+                  midpoint = mean(countRange),
+                  limits = c(floor(countRange[[1]]), ceiling(countRange[[2]]))
+               )
+
+         } else if (fillScale == "C") {
+
+            heatmap <-
+               heatmap +
+               ggplot2::scale_fill_gradient2(
+                  low = "#F0F921FF",
+                  mid = "#CC4678FF",
+                  high = "#0D0887FF",
+                  midpoint = mean(countRange),
+                  limits = c(floor(countRange[[1]]), ceiling(countRange[[2]]))
+               )
+
+         } else if (fillScale == "D") {
+
+            heatmap <-
+               heatmap +
+               ggplot2::scale_fill_gradient2(
+                  low = "#FDE725FF",
+                  mid = "#21908CFF",
+                  high = "#440154FF",
+                  midpoint = mean(countRange),
+                  limits = c(floor(countRange[[1]]), ceiling(countRange[[2]]))
+               )
+
+         } else if (fillScale == "E") {
+
+            heatmap <-
+               heatmap +
+               ggplot2::scale_fill_gradient2(
+                  low = "#FFEA46FF",
+                  mid = "#7C7B78FF",
+                  high = "#00204DFF",
+                  midpoint = mean(countRange),
+                  limits = c(floor(countRange[[1]]), ceiling(countRange[[2]]))
+               )
+         }
 
       }
 
